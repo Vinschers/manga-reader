@@ -14,13 +14,14 @@ namespace Manga_Reader
     }
     public class Container
     {
-        List<Page> pages;
+        List<string> pages;
         List<string> dirs;
         string name;
         string path;
         string renamePattern;
         Page currentPage;
         Container currentDir;
+        string key;
 
         public string Name { get => name; }
         public string RenamePattern
@@ -30,8 +31,9 @@ namespace Manga_Reader
                 return GetLastSubContainer().renamePattern;
             }
         }
-        public List<Page> Pages { get => pages; }
+        public List<string> Pages { get => pages; }
         public Container CurrentDir { get => currentDir; }
+        public string Key { get => key; set => key = value; }
 
         private bool IsRecognisedImageFile(string fileName)
         {
@@ -54,17 +56,17 @@ namespace Manga_Reader
             if (files.Length > 0)
             {
                 files = files.OrderBy(x => Regex.Replace(x, "[0-9]+", match => match.Value.PadLeft(10, '0'))).ToArray();
-                pages = new List<Page>();
+                pages = new List<string>();
                 foreach (var file in files)
-                    pages.Add(new Page(file));
+                    pages.Add(file);
                 switch (p)
                 {
                     case DefaultPage.First:
-                        currentPage = pages.First();
+                        currentPage = new Page(pages.First());
                         break;
 
                     case DefaultPage.Last:
-                        currentPage = pages.Last();
+                        currentPage = new Page(pages.Last());
                         break;
                 }
             }
@@ -76,13 +78,14 @@ namespace Manga_Reader
             if (dirs.Count > 0)
             {
                 dirs = dirs.OrderBy(x => Regex.Replace(x, "[0-9]+", match => match.Value.PadLeft(10, '0'))).ToList();
-                currentDir = new Container(dirs[0]);
+                currentDir = new Container(dirs[0], null);
             }
         }
 
-        public Container(string path, DefaultPage p=DefaultPage.First)
+        public Container(string path, string key, DefaultPage p=DefaultPage.First)
         {
             this.path = path;
+            this.key = key;
             name = path.Substring(path.LastIndexOf("\\") + 1);
             renamePattern = "";
 
@@ -101,13 +104,13 @@ namespace Manga_Reader
         {
             if (pages != null)
             {
-                int index = pages.IndexOf(currentPage);
+                int index = pages.IndexOf(currentPage.Path);
                 index++;
 
                 if (index > pages.Count)
                     throw new Exception();
                 else
-                    currentPage = pages.ElementAt(index);
+                    currentPage = new Page(pages.ElementAt(index));
             }
             else
             {
@@ -119,7 +122,7 @@ namespace Manga_Reader
                 catch
                 {
                     int dirIndex = dirs.IndexOf(currentDir.path);
-                    currentDir = new Container(dirs.ElementAt(dirIndex + 1));
+                    currentDir = new Container(dirs.ElementAt(dirIndex + 1), key);
                     currentPage = currentDir.GetCurrentPage();
                 }
             }
@@ -129,7 +132,7 @@ namespace Manga_Reader
         {
             if (pages != null)
             {
-                int index = pages.IndexOf(currentPage);
+                int index = pages.IndexOf(currentPage.Path);
                 index--;
 
                 if (index < 0)
@@ -138,7 +141,7 @@ namespace Manga_Reader
                 }
                 else
                 {
-                    currentPage = pages.ElementAt(index);
+                    currentPage = new Page(pages.ElementAt(index));
                 }
             }
             else
@@ -151,7 +154,7 @@ namespace Manga_Reader
                 catch
                 {
                     int dirIndex = dirs.IndexOf(currentDir.path);
-                    currentDir = new Container(dirs.ElementAt(dirIndex - 1), DefaultPage.Last);
+                    currentDir = new Container(dirs.ElementAt(dirIndex - 1), key, DefaultPage.Last);
                     currentPage = currentDir.GetCurrentPage();
                 }
             }
@@ -165,14 +168,14 @@ namespace Manga_Reader
             {
                 if (curDir.dirs != null)
                 {
-                    curDir.currentDir = new Container(curDir.dirs[0]);
+                    curDir.currentDir = new Container(curDir.dirs[0], null);
                     curDir.currentPage = null;
                 }
                 else
-                    curDir.currentPage = curDir.pages[0];
-                curDir.currentDir = new Container(curDir.dirs.Find(container => container.Substring(container.LastIndexOf("\\")+1) == part));
+                    curDir.currentPage = new Page(curDir.pages[0]);
+                curDir.currentDir = new Container(curDir.dirs.Find(container => container.Substring(container.LastIndexOf("\\")+1) == part), null);
                 if (curDir.currentDir == null)
-                    curDir.currentDir = new Container(curDir.dirs[0]);
+                    curDir.currentDir = new Container(curDir.dirs[0], null);
                 curDir = curDir.currentDir;
             }
         }
@@ -185,9 +188,38 @@ namespace Manga_Reader
             return dir;
         }
 
-        public void RenamePages(string pattern, Hashtable hash, int n)
+        public int PagesCount(int n)
         {
-            GetLastSubContainer().RenamePages(pattern, hash, n);
+            if (dirs != null)
+            {
+                foreach (string dir in dirs)
+                    n += new Container(dir, null).PagesCount(n);
+            }
+            if (pages != null)
+                n += pages.Count();
+            return n;
+        }
+
+        public int RenamePages(string pattern, Hashtable hash, int n)
+        {
+            int count = 0;
+            if (pages != null)
+            {
+                foreach (string page in pages)
+                {
+                    new Page(page).Rename(pattern, hash, n++);
+                    count++;
+                }
+            }
+            
+            if (dirs == null)
+                return -1;
+
+            foreach(string dir in dirs)
+            {
+                count += new Container(dir, null).RenamePages(pattern, hash, n + count);
+            }
+            return count;
         }
     }
 }

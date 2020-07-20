@@ -16,6 +16,7 @@ namespace Manga_Reader
     public partial class frmMangaReader : Form
     {
         Reader reader;
+        bool changeContainer = false;
         Point mouseDownLocation, mouseLocation;
 
         public frmMangaReader()
@@ -69,6 +70,8 @@ namespace Manga_Reader
             lblPage.Top = pnlPage.Top + pnlPage.Height + 20;
             lblManga.Top = lblPage.Top + lblPage.Height + 5;
             UpdateLabels();
+
+            SetupRenameMenu();
         }
 
         private void UpdateLabels()
@@ -97,6 +100,8 @@ namespace Manga_Reader
 
         private void TvPath_AfterSelect(object sender, TreeViewEventArgs e)
         {
+            if (!changeContainer)
+                return;
             try
             {
                 string path = ((MyTreeNode)tvPath.SelectedNode).FilePath;
@@ -244,6 +249,42 @@ namespace Manga_Reader
                 reader.RemoveZoom(1);
             else
                 reader.ApplyZoom(1, mouseLocation.X, mouseLocation.Y);
+        }
+
+        private void SetupRenameMenu()
+        {
+            var keys = reader.Hashtable.Keys;
+            List<ToolStripMenuItem> menus = new List<ToolStripMenuItem>();
+            foreach(string key in keys)
+            {
+                ToolStripMenuItem item = new ToolStripMenuItem();
+
+                item.Name = "renameMenu"+key;
+                item.Size = new Size(180, 22);
+                item.Text = "Rename " + key;
+                item.Click += new EventHandler(RenameKey);
+                ((ToolStripDropDownMenu)item.DropDown).ShowImageMargin = false;
+
+                menus.Add(item);
+            }
+
+            renameToolStripMenuItem.DropDownItems.AddRange(menus.ToArray());
+        }
+
+        private void TvPath_MouseEnter(object sender, EventArgs e)
+        {
+            changeContainer = true;
+        }
+
+        private void TvPath_MouseLeave(object sender, EventArgs e)
+        {
+            changeContainer = false;
+        }
+
+        private void RenameKey(object sender, EventArgs e)
+        {
+            var key = ((ToolStripMenuItem)sender).Text.Split(' ')[1];
+            reader.RenameKey(key);
         }
     }
 }

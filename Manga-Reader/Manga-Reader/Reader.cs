@@ -25,6 +25,7 @@ namespace Manga_Reader
         MyTreeView treeView;
         bool autoRename;
         double zoom;
+        List<string> hashKeys;
         const double ZOOM_RATIO = 1.5;
         const double MAX_ZOOM = 5.0625;
 
@@ -44,6 +45,7 @@ namespace Manga_Reader
         }
         internal MyTreeView TreeView { get => treeView; set => treeView = value; }
         public double Zoom { get => zoom; }
+        public Hashtable Hashtable { get => hash; }
 
         public Reader(string root, PictureBox pb, MyTreeView tv)
         {
@@ -52,7 +54,7 @@ namespace Manga_Reader
             this.treeView = tv;
             this.hash = new Hashtable();
 
-            this.folder = new Container(root);
+            this.folder = new Container(root, null);
             this.depth = IteratePath();
             this.page = folder.GetCurrentPage();
             this.pageNumber = 1;
@@ -66,7 +68,7 @@ namespace Manga_Reader
             this.pictureBox = pb;
             this.treeView = tv;
             this.hash = new Hashtable();
-            this.folder = new Container(root);
+            this.folder = new Container(root, null);
             this.page = folder.GetCurrentPage();
             this.pageNumber = 1;
 
@@ -219,8 +221,6 @@ namespace Manga_Reader
 
         public void SetPathOrganization(string org)
         {
-            if (this.organization == org)
-                return;
             this.organization = org;
             UpdateHash();
         }
@@ -272,9 +272,6 @@ namespace Manga_Reader
                 pageNumber++;
 
                 zoom = 1.0;
-
-                if (autoRename)
-                    RenamePages();
             }
             catch
             {
@@ -293,9 +290,6 @@ namespace Manga_Reader
                 pageNumber--;
 
                 zoom = 1.0;
-
-                if (autoRename)
-                    RenamePages();
             }
             catch
             {
@@ -323,10 +317,14 @@ namespace Manga_Reader
             t.Start();
         }
 
-        public void RenamePages()
+        public void RenameKey(string key)
         {
-            if (folder.RenamePattern == "")
-                folder.RenamePages(template, hash, pageNumber);
+            var dir = folder;
+            while (dir.Key != key)
+                dir = dir.CurrentDir;
+
+            if (dir.RenamePattern == "")
+                dir.RenamePages(template, hash, pageNumber);
         }
 
         public void ChangeContainer(string path)
@@ -340,10 +338,26 @@ namespace Manga_Reader
             zoom = 1.0;
         }
 
+        private void UpdateContainerKeys()
+        {
+            var dir = folder;
+            var i = 0;
+
+            while (true)
+            {
+                dir.Key = hashKeys[i++];
+                if (dir.CurrentDir == null)
+                    break;
+                dir = dir.CurrentDir;
+            }
+        }
+
         private void UpdateHash()
         {
             if (!CheckOrganizationMatch())
                 throw new Exception("Structure given does not match actual folder structure");
+
+            this.hashKeys = new List<string>();
 
             var orgParts = organization.Split('\\');
             if (orgParts[orgParts.Length - 1] != "")
@@ -427,8 +441,10 @@ namespace Manga_Reader
                 for (int k = 0; k < keys.Count; ++k)
                 {
                     hash[keys[k]] = values[k];
+                    hashKeys.Add(keys[k]);
                 }
             }
+            UpdateContainerKeys();
         }
 
         private bool CheckOrganizationMatch()

@@ -30,20 +30,20 @@
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.autoRenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.shortcutsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pbPage = new System.Windows.Forms.PictureBox();
             this.pnlPage = new System.Windows.Forms.Panel();
             this.lblManga = new System.Windows.Forms.Label();
             this.lblPage = new System.Windows.Forms.Label();
-            this.tvPath = new MyTreeView();
-            this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.autoRenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameDepth1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameDepth2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameDepth3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameDepth4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.shortcutsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.tvPath = new MyTreeView();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbPage)).BeginInit();
             this.pnlPage.SuspendLayout();
@@ -56,6 +56,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
+            this.menuStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             this.menuStrip1.Size = new System.Drawing.Size(1461, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
@@ -69,12 +70,41 @@
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
             this.settingsToolStripMenuItem.Text = "Settings";
             // 
+            // renameToolStripMenuItem
+            // 
+            this.renameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.autoRenameToolStripMenuItem});
+            this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.renameToolStripMenuItem.Text = "Rename";
+            // 
+            // autoRenameToolStripMenuItem
+            // 
+            this.autoRenameToolStripMenuItem.Name = "autoRenameToolStripMenuItem";
+            this.autoRenameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.autoRenameToolStripMenuItem.Text = "Auto rename";
+            this.autoRenameToolStripMenuItem.Click += new System.EventHandler(this.AutoRenameToolStripMenuItem_Click);
+            // 
             // saveSettingsToolStripMenuItem
             // 
             this.saveSettingsToolStripMenuItem.Name = "saveSettingsToolStripMenuItem";
             this.saveSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.saveSettingsToolStripMenuItem.Text = "Save settings";
             this.saveSettingsToolStripMenuItem.Click += new System.EventHandler(this.SaveSettingsToolStripMenuItem_Click);
+            // 
+            // helpToolStripMenuItem
+            // 
+            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.shortcutsToolStripMenuItem});
+            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
+            this.helpToolStripMenuItem.Text = "Help";
+            // 
+            // shortcutsToolStripMenuItem
+            // 
+            this.shortcutsToolStripMenuItem.Name = "shortcutsToolStripMenuItem";
+            this.shortcutsToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.shortcutsToolStripMenuItem.Text = "Shortcuts";
             // 
             // pbPage
             // 
@@ -115,6 +145,26 @@
             this.lblPage.Size = new System.Drawing.Size(0, 28);
             this.lblPage.TabIndex = 5;
             // 
+            // renameDepth1ToolStripMenuItem
+            // 
+            this.renameDepth1ToolStripMenuItem.Name = "renameDepth1ToolStripMenuItem";
+            this.renameDepth1ToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
+            // 
+            // renameDepth2ToolStripMenuItem
+            // 
+            this.renameDepth2ToolStripMenuItem.Name = "renameDepth2ToolStripMenuItem";
+            this.renameDepth2ToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
+            // 
+            // renameDepth3ToolStripMenuItem
+            // 
+            this.renameDepth3ToolStripMenuItem.Name = "renameDepth3ToolStripMenuItem";
+            this.renameDepth3ToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
+            // 
+            // renameDepth4ToolStripMenuItem
+            // 
+            this.renameDepth4ToolStripMenuItem.Name = "renameDepth4ToolStripMenuItem";
+            this.renameDepth4ToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
+            // 
             // tvPath
             // 
             this.tvPath.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(16)))), ((int)(((byte)(16)))));
@@ -129,63 +179,8 @@
             this.tvPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TvPath_KeyDown);
             this.tvPath.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TvPath_KeyPress);
             this.tvPath.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TvPath_KeyUp);
-            // 
-            // renameToolStripMenuItem
-            // 
-            this.renameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.autoRenameToolStripMenuItem,
-            this.renameDepth1ToolStripMenuItem,
-            this.renameDepth2ToolStripMenuItem,
-            this.renameDepth3ToolStripMenuItem,
-            this.renameDepth4ToolStripMenuItem});
-            this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.renameToolStripMenuItem.Text = "Rename";
-            // 
-            // autoRenameToolStripMenuItem
-            // 
-            this.autoRenameToolStripMenuItem.Name = "autoRenameToolStripMenuItem";
-            this.autoRenameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.autoRenameToolStripMenuItem.Text = "Auto rename";
-            this.autoRenameToolStripMenuItem.Click += new System.EventHandler(this.AutoRenameToolStripMenuItem_Click);
-            // 
-            // renameDepth1ToolStripMenuItem
-            // 
-            this.renameDepth1ToolStripMenuItem.Name = "renameDepth1ToolStripMenuItem";
-            this.renameDepth1ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.renameDepth1ToolStripMenuItem.Text = "Rename depth 1";
-            // 
-            // renameDepth2ToolStripMenuItem
-            // 
-            this.renameDepth2ToolStripMenuItem.Name = "renameDepth2ToolStripMenuItem";
-            this.renameDepth2ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.renameDepth2ToolStripMenuItem.Text = "Rename depth 2";
-            // 
-            // renameDepth3ToolStripMenuItem
-            // 
-            this.renameDepth3ToolStripMenuItem.Name = "renameDepth3ToolStripMenuItem";
-            this.renameDepth3ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.renameDepth3ToolStripMenuItem.Text = "Rename depth 3";
-            // 
-            // renameDepth4ToolStripMenuItem
-            // 
-            this.renameDepth4ToolStripMenuItem.Name = "renameDepth4ToolStripMenuItem";
-            this.renameDepth4ToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.renameDepth4ToolStripMenuItem.Text = "Rename depth 4";
-            // 
-            // helpToolStripMenuItem
-            // 
-            this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.shortcutsToolStripMenuItem});
-            this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
-            this.helpToolStripMenuItem.Text = "Help";
-            // 
-            // shortcutsToolStripMenuItem
-            // 
-            this.shortcutsToolStripMenuItem.Name = "shortcutsToolStripMenuItem";
-            this.shortcutsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.shortcutsToolStripMenuItem.Text = "Shortcuts";
+            this.tvPath.MouseEnter += new System.EventHandler(this.TvPath_MouseEnter);
+            this.tvPath.MouseLeave += new System.EventHandler(this.TvPath_MouseLeave);
             // 
             // frmMangaReader
             // 
