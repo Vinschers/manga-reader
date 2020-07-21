@@ -1,2 +1,2 @@
 # manga-reader
-Python script that display manga organized in folders
+C# windows forms that display manga organized in folders
