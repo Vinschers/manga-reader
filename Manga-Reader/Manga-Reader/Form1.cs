@@ -180,18 +180,9 @@ namespace Manga_Reader
 
         private void FrmMangaReader_KeyPress(object sender, KeyPressEventArgs e)
         {
-            switch ((int)e.KeyChar)
-            {
-                case 4: //Ctrl + D
-                    reader.DeleteCurrentPage();
-                    UpdateLabels();
-                    break;
-
-                case 18: //Ctrl + R
-                    reader.RenameKey(reader.DefaultRenameKey);
-                    UpdateLabels();
-                    break;
-            }
+            bool shortcut = reader.Shortcut(e.KeyChar);
+            if (shortcut)
+                UpdateLabels();
         }
 
         private void SaveSettingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -278,6 +269,7 @@ namespace Manga_Reader
         private void ShortutsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             var frm = new frmShortcuts();
+            var dialogResult = frm.ShowDialog();
         }
 
         private void TvPath_MouseDown(object sender, MouseEventArgs e)

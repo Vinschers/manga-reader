@@ -12,6 +12,12 @@ namespace Manga_Reader
 {
     public class Reader
     {
+        class ReaderShortcut
+        {
+            public int Code { get; set; }
+            public string String { get; set; }
+            public Action<Reader> Function { get; set; }
+        }
         int depth;
         string root;
         string organization;
@@ -27,10 +33,17 @@ namespace Manga_Reader
         double zoom;
         List<string> hashKeys;
         string defaultRenameKey;
+        Hashtable shortcuts;
+
 
         const double ZOOM_RATIO = 1.5;
         const double MAX_ZOOM = 5.0625;
         const string PAGE_KEY = "$page";
+        ReaderShortcut[] shortcutsArray =
+        {
+            new ReaderShortcut { Code=4, String="Ctrl + D", Function= r => { r.DeleteCurrentPage(); } },
+            new ReaderShortcut { Code=18, String="Ctrl + R", Function= r => { r.RenameKey(r.DefaultRenameKey); } }
+        };
 
         public bool AutoRename { get => autoRename; set => autoRename = value; }
         public Page Page { get => page; }
@@ -73,6 +86,8 @@ namespace Manga_Reader
             this.zoom = 1.0;
 
             UpdateImage();
+
+            SetupShortcuts();
         }
 
         public Reader(string root, string path, PictureBox pb, MyTreeView tv)
@@ -97,6 +112,16 @@ namespace Manga_Reader
             this.autoRename = bool.Parse(file.ReadLine());
 
             file.Close();
+
+            SetupShortcuts();
+        }
+
+        private void SetupShortcuts()
+        {
+            shortcuts = new Hashtable();
+
+            foreach (ReaderShortcut rs in shortcutsArray)
+                shortcuts[rs.Code.ToString()] = rs;
         }
 
         private int IteratePath()
@@ -334,7 +359,7 @@ namespace Manga_Reader
 
         public void ChangeContainer(string path)
         {
-            path = path.Replace(root+"\\", "");
+            path = path.Replace(root + "\\", "");
             var subParts = path.Split('\\');
             folder.ChangeCurrentContainer(subParts);
             page = folder.GetCurrentPage();
@@ -397,8 +422,8 @@ namespace Manga_Reader
 
                 List<string> keys = wordsS.ToList();
                 List<string> values = wordsP.ToList();
-                
-                for(int iK = 0; iK < keys.Count; ++iK)
+
+                for (int iK = 0; iK < keys.Count; ++iK)
                 {
                     int iV = values.IndexOf(keys.ElementAt(iK));
                     if (iV != -1)
@@ -414,13 +439,13 @@ namespace Manga_Reader
                 while (keys.Contains(""))
                 {
                     string join = "";
-                    for(int iK = 0; iK < keys.Count; ++iK)
+                    for (int iK = 0; iK < keys.Count; ++iK)
                     {
-                        if(keys[iK] != "")
+                        if (keys[iK] != "")
                             join += keys[iK];
                         if (keys[iK] == "")
                         {
-                            keys.RemoveRange(0, iK+1);
+                            keys.RemoveRange(0, iK + 1);
                             if (join != "")
                                 keys.Insert(0, join.Contains(" ") ? join.Substring(0, join.LastIndexOf(" ")) : join);
                             break;
@@ -437,7 +462,7 @@ namespace Manga_Reader
                             join += values[iV] + " ";
                         if (values[iV] == "")
                         {
-                            values.RemoveRange(0, iV+1);
+                            values.RemoveRange(0, iV + 1);
                             if (join != "")
                                 values.Insert(0, join.Contains(" ") ? join.Substring(0, join.LastIndexOf(" ")) : join);
                             break;
@@ -492,7 +517,7 @@ namespace Manga_Reader
 
                     if (cS == '$')
                     {
-                        while(cS != ' ' && iS < strS.Length)
+                        while (cS != ' ' && iS < strS.Length)
                         {
                             cS = strS[iS];
                             iS++;
@@ -587,6 +612,20 @@ namespace Manga_Reader
             pictureBox.Top = 0;
 
             zoom /= Math.Pow(ZOOM_RATIO, times);
+        }
+
+        public bool Shortcut(int key)
+        {
+            bool shortcut = false;
+
+            ReaderShortcut s = (ReaderShortcut)shortcuts[key.ToString()];
+            if (s != null)
+            {
+                s.Function(this);
+                shortcut = true;
+            }
+
+            return shortcut;
         }
     }
 }
