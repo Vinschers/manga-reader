@@ -26,8 +26,11 @@ namespace Manga_Reader
         bool autoRename;
         double zoom;
         List<string> hashKeys;
+        string defaultRenameKey;
+
         const double ZOOM_RATIO = 1.5;
         const double MAX_ZOOM = 5.0625;
+        const string PAGE_KEY = "$page";
 
         public bool AutoRename { get => autoRename; set => autoRename = value; }
         public Page Page { get => page; }
@@ -46,6 +49,15 @@ namespace Manga_Reader
         internal MyTreeView TreeView { get => treeView; set => treeView = value; }
         public double Zoom { get => zoom; }
         public Hashtable Hashtable { get => hash; }
+        public string DefaultRenameKey
+        {
+            get
+            {
+                if (defaultRenameKey != null && defaultRenameKey != "")
+                    return defaultRenameKey;
+                return pageBreaker;
+            }
+        }
 
         public Reader(string root, PictureBox pb, MyTreeView tv)
         {
@@ -58,6 +70,7 @@ namespace Manga_Reader
             this.depth = IteratePath();
             this.page = folder.GetCurrentPage();
             this.pageNumber = 1;
+            this.zoom = 1.0;
 
             UpdateImage();
         }
@@ -71,6 +84,7 @@ namespace Manga_Reader
             this.folder = new Container(root, null);
             this.page = folder.GetCurrentPage();
             this.pageNumber = 1;
+            this.zoom = 1.0;
 
             UpdateImage();
 
@@ -107,6 +121,11 @@ namespace Manga_Reader
 
             int d = rec(root, 0, rootNode);
             this.treeView.Nodes.Add(rootNode);
+            this.treeView.ExpandAll();
+            var node = this.treeView.Nodes[0];
+            while (node.Nodes != null && node.Nodes.Count > 0)
+                node = node.Nodes[0];
+            this.treeView.SelectedNode = node;
 
             return d;
         }
@@ -176,19 +195,19 @@ namespace Manga_Reader
             switch (this.depth)
             {
                 case 0:
-                    possibleTemplate = "Chapter $Chapter Page $page";
+                    possibleTemplate = "Chapter $Chapter Page " + PAGE_KEY;
                     break;
 
                 case 1:
-                    possibleTemplate = "Volume $Volume - %Chapter p. $page";
+                    possibleTemplate = "Volume $Volume - %Chapter p. " + PAGE_KEY;
                     break;
 
                 case 2:
-                    possibleTemplate = "$Manga - Volume $Volume Page $page";
+                    possibleTemplate = "$Manga - Volume $Volume Page " + PAGE_KEY;
                     break;
 
                 default:
-                    possibleTemplate = "Volume $Volume - Page $page";
+                    possibleTemplate = "Volume $Volume - Page " + PAGE_KEY;
                     break;
             }
 
@@ -261,60 +280,43 @@ namespace Manga_Reader
             this.pageBreaker = b;
         }
 
-        public void NextPage()
+        public void ChangePage(int n)
         {
             try
             {
-                folder.AdvancePage();
+                folder.ChangePage(n, this.treeView);
+
                 page = folder.GetCurrentPage();
                 UpdateHash();
                 UpdateImage();
-                pageNumber++;
+                pageNumber += n;
 
                 zoom = 1.0;
             }
             catch
             {
-                MessageBox.Show("End reached!");
-            }
-        }
-
-        public void PreviousPage()
-        {
-            try
-            {
-                folder.RetreatPage();
-                page = folder.GetCurrentPage();
-                UpdateHash();
-                UpdateImage();
-                pageNumber--;
-
-                zoom = 1.0;
-            }
-            catch
-            {
-                MessageBox.Show("Start reached!");
+                if (n < 0)
+                    MessageBox.Show("Start reached!");
+                else
+                    MessageBox.Show("End reached!");
             }
         }
 
         public void DeleteCurrentPage()
         {
-            Page current = page;
+            Page p = folder.GetCurrentPage();
             try
             {
-                NextPage();
+                ChangePage(1);
+                pageNumber--;
             }
             catch
             {
-                PreviousPage();
+                ChangePage(-1);
+                pageNumber++;
             }
-            void Del()
-            {
-                Thread.Sleep(1000);
-                current.Delete();
-            }
-            var t = new Thread(Del);
-            t.Start();
+            folder.DeletePage(p);
+            page = folder.GetCurrentPage();
         }
 
         public void RenameKey(string key)
@@ -322,9 +324,12 @@ namespace Manga_Reader
             var dir = folder;
             while (dir.Key != key)
                 dir = dir.CurrentDir;
+            int start = pageNumber;
+            if (hashKeys.IndexOf(key) <= hashKeys.IndexOf(pageBreaker))
+                start = 1;
 
-            if (dir.RenamePattern == "")
-                dir.RenamePages(template, hash, pageNumber);
+            dir.RenamePages(template, hash, start, PAGE_KEY);
+            page = folder.GetCurrentPage();
         }
 
         public void ChangeContainer(string path)
@@ -335,6 +340,16 @@ namespace Manga_Reader
             page = folder.GetCurrentPage();
             UpdateHash();
             UpdateImage();
+
+            var dir = folder;
+            while (dir.Key != pageBreaker)
+                dir = dir.CurrentDir;
+
+            var newDir = folder;
+            while (newDir.CurrentDir != null)
+                newDir = newDir.CurrentDir;
+
+            pageNumber = dir.CountPagesUntil(newDir.Name) + 1;
             zoom = 1.0;
         }
 
@@ -438,6 +453,10 @@ namespace Manga_Reader
                     if (hash[pageBreaker].ToString() != values[pageBreakerIndex])
                         pageNumber = 0;
                 }
+
+                if (autoRename && values[keys.IndexOf(DefaultRenameKey)] != hash[DefaultRenameKey].ToString())
+                    RenameKey(DefaultRenameKey);
+
                 for (int k = 0; k < keys.Count; ++k)
                 {
                     hash[keys[k]] = values[k];

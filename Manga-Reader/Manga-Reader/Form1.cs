@@ -61,7 +61,7 @@ namespace Manga_Reader
 
             reader = GetReader(root);
 
-            var frm2 = new Form2(reader.GeneratePossiblePathOrganization(), reader.GeneratePossibleRenameTemplate(), reader.GeneratePossiblePageBreaker(), reader);
+            var frm2 = new frmSetup(reader.GeneratePossiblePathOrganization(), reader.GeneratePossibleRenameTemplate(), reader.GeneratePossiblePageBreaker(), reader);
             var dialogResult = frm2.ShowDialog();
 
             if (dialogResult == DialogResult.Cancel)
@@ -87,12 +87,12 @@ namespace Manga_Reader
         {
             if (e.KeyCode == Keys.Right)
             {
-                reader.NextPage();
+                reader.ChangePage(1);
                 UpdateLabels();
             }
             else if (e.KeyCode == Keys.Left)
             {
-                reader.PreviousPage();
+                reader.ChangePage(-1);
                 UpdateLabels();
             }
             e.Handled = true;
@@ -109,6 +109,7 @@ namespace Manga_Reader
                 UpdateLabels();
             }
             catch { }
+            changeContainer = false;
         }
 
         private void TvPath_KeyUp(object sender, KeyEventArgs e)
@@ -183,9 +184,12 @@ namespace Manga_Reader
             {
                 case 4: //Ctrl + D
                     reader.DeleteCurrentPage();
+                    UpdateLabels();
                     break;
 
                 case 18: //Ctrl + R
+                    reader.RenameKey(reader.DefaultRenameKey);
+                    UpdateLabels();
                     break;
             }
         }
@@ -271,20 +275,21 @@ namespace Manga_Reader
             renameToolStripMenuItem.DropDownItems.AddRange(menus.ToArray());
         }
 
-        private void TvPath_MouseEnter(object sender, EventArgs e)
+        private void ShortutsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            changeContainer = true;
+            var frm = new frmShortcuts();
         }
 
-        private void TvPath_MouseLeave(object sender, EventArgs e)
+        private void TvPath_MouseDown(object sender, MouseEventArgs e)
         {
-            changeContainer = false;
+            changeContainer = true;
         }
 
         private void RenameKey(object sender, EventArgs e)
         {
             var key = ((ToolStripMenuItem)sender).Text.Split(' ')[1];
             reader.RenameKey(key);
+            UpdateLabels();
         }
     }
 }

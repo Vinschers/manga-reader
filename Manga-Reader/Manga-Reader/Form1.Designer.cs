@@ -32,6 +32,7 @@
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.autoRenameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.shortutsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.shortcutsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -65,6 +66,7 @@
             // 
             this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.renameToolStripMenuItem,
+            this.shortutsToolStripMenuItem,
             this.saveSettingsToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
@@ -75,20 +77,27 @@
             this.renameToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.autoRenameToolStripMenuItem});
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
             this.renameToolStripMenuItem.Text = "Rename";
             // 
             // autoRenameToolStripMenuItem
             // 
             this.autoRenameToolStripMenuItem.Name = "autoRenameToolStripMenuItem";
-            this.autoRenameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.autoRenameToolStripMenuItem.Size = new System.Drawing.Size(143, 22);
             this.autoRenameToolStripMenuItem.Text = "Auto rename";
             this.autoRenameToolStripMenuItem.Click += new System.EventHandler(this.AutoRenameToolStripMenuItem_Click);
+            // 
+            // shortutsToolStripMenuItem
+            // 
+            this.shortutsToolStripMenuItem.Name = "shortutsToolStripMenuItem";
+            this.shortutsToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
+            this.shortutsToolStripMenuItem.Text = "Shortuts";
+            this.shortutsToolStripMenuItem.Click += new System.EventHandler(this.ShortutsToolStripMenuItem_Click);
             // 
             // saveSettingsToolStripMenuItem
             // 
             this.saveSettingsToolStripMenuItem.Name = "saveSettingsToolStripMenuItem";
-            this.saveSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSettingsToolStripMenuItem.Size = new System.Drawing.Size(142, 22);
             this.saveSettingsToolStripMenuItem.Text = "Save settings";
             this.saveSettingsToolStripMenuItem.Click += new System.EventHandler(this.SaveSettingsToolStripMenuItem_Click);
             // 
@@ -179,8 +188,7 @@
             this.tvPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TvPath_KeyDown);
             this.tvPath.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TvPath_KeyPress);
             this.tvPath.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TvPath_KeyUp);
-            this.tvPath.MouseEnter += new System.EventHandler(this.TvPath_MouseEnter);
-            this.tvPath.MouseLeave += new System.EventHandler(this.TvPath_MouseLeave);
+            this.tvPath.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TvPath_MouseDown);
             // 
             // frmMangaReader
             // 
@@ -228,6 +236,7 @@
         private System.Windows.Forms.ToolStripMenuItem renameDepth4ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem shortcutsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem shortutsToolStripMenuItem;
     }
 }
 

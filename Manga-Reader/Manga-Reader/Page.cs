@@ -16,11 +16,11 @@ namespace Manga_Reader
         public string Name { get => name; set => name = value; }
         public string Path { get => path; set => path = value; }
 
-        public void Rename(string newName, Hashtable hash, int n)
+        public void Rename(string newName, Hashtable hash, int n, string pageKey)
         {
             foreach (string key in hash.Keys)
                 newName = newName.Replace(key, hash[key].ToString());
-            newName = newName.Replace("$page", n + "");
+            newName = newName.Replace(pageKey, n + "");
             newName = path.Substring(0, path.LastIndexOf("\\") + 1) + newName + path.Substring(path.LastIndexOf("."));
             if (newName != path)
             {

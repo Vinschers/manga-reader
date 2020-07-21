@@ -10,10 +10,10 @@ using System.Windows.Forms;
 
 namespace Manga_Reader
 {
-    public partial class Form2 : Form
+    public partial class frmSetup : Form
     {
         Reader reader;
-        public Form2(string structure, string template, string counter, Reader r)
+        public frmSetup(string structure, string template, string counter, Reader r)
         {
             InitializeComponent();
 

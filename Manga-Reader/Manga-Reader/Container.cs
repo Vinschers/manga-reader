@@ -9,8 +9,8 @@ namespace Manga_Reader
 {
     public enum DefaultPage
     {
-        First,
-        Last
+        First=0,
+        Last=-1
     }
     public class Container
     {
@@ -18,19 +18,11 @@ namespace Manga_Reader
         List<string> dirs;
         string name;
         string path;
-        string renamePattern;
         Page currentPage;
         Container currentDir;
         string key;
 
         public string Name { get => name; }
-        public string RenamePattern
-        {
-            get
-            {
-                return GetLastSubContainer().renamePattern;
-            }
-        }
         public List<string> Pages { get => pages; }
         public Container CurrentDir { get => currentDir; }
         public string Key { get => key; set => key = value; }
@@ -49,7 +41,7 @@ namespace Manga_Reader
             return recognisedImageExtensions.Contains(targetExtension);
         }
 
-        private void UpdatePages(DefaultPage p)
+        private void UpdatePages(int p)
         {
             var files = Directory.GetFiles(path);
             files = files.ToList().FindAll(x => IsRecognisedImageFile(x)).ToArray();
@@ -59,16 +51,9 @@ namespace Manga_Reader
                 pages = new List<string>();
                 foreach (var file in files)
                     pages.Add(file);
-                switch (p)
-                {
-                    case DefaultPage.First:
-                        currentPage = new Page(pages.First());
-                        break;
-
-                    case DefaultPage.Last:
-                        currentPage = new Page(pages.Last());
-                        break;
-                }
+                if (p < 0)
+                    p = pages.Count - Math.Abs(p);
+                currentPage = new Page(pages[p]);
             }
         }
 
@@ -87,28 +72,29 @@ namespace Manga_Reader
             this.path = path;
             this.key = key;
             name = path.Substring(path.LastIndexOf("\\") + 1);
-            renamePattern = "";
 
-            UpdatePages(p);
+            UpdatePages((int)p);
             UpdateSubContainers();
         }
 
         public Page GetCurrentPage()
         {
-            if (currentPage != null)
-                return currentPage;
-            return currentDir.GetCurrentPage();
+            return GetLastSubContainer().currentPage;
         }
 
-        public void AdvancePage()
+        public void ChangePage(int n, MyTreeView tv=null)
         {
             if (pages != null)
             {
                 int index = pages.IndexOf(currentPage.Path);
-                index++;
+                index += n;
 
-                if (index > pages.Count)
+                if (index >= pages.Count || index < 0)
+                {
+                    if (tv != null)
+                        tv.SelectedNode = n > 0 ? tv.SelectedNode.NextNode : tv.SelectedNode.PrevNode;
                     throw new Exception();
+                }
                 else
                     currentPage = new Page(pages.ElementAt(index));
             }
@@ -116,45 +102,16 @@ namespace Manga_Reader
             {
                 try
                 {
-                    currentDir.AdvancePage();
+                    currentDir.ChangePage(n, tv);
                     currentPage = currentDir.GetCurrentPage();
                 }
                 catch
                 {
                     int dirIndex = dirs.IndexOf(currentDir.path);
-                    currentDir = new Container(dirs.ElementAt(dirIndex + 1), key);
-                    currentPage = currentDir.GetCurrentPage();
-                }
-            }
-        }
-
-        public void RetreatPage()
-        {
-            if (pages != null)
-            {
-                int index = pages.IndexOf(currentPage.Path);
-                index--;
-
-                if (index < 0)
-                {
-                    throw new Exception();
-                }
-                else
-                {
-                    currentPage = new Page(pages.ElementAt(index));
-                }
-            }
-            else
-            {
-                try
-                {
-                    currentDir.RetreatPage();
-                    currentPage = currentDir.GetCurrentPage();
-                }
-                catch
-                {
-                    int dirIndex = dirs.IndexOf(currentDir.path);
-                    currentDir = new Container(dirs.ElementAt(dirIndex - 1), key, DefaultPage.Last);
+                    if (n > 0)
+                        currentDir = new Container(dirs.ElementAt(dirIndex + 1), key);
+                    else
+                        currentDir = new Container(dirs.ElementAt(dirIndex - 1), key, DefaultPage.Last);
                     currentPage = currentDir.GetCurrentPage();
                 }
             }
@@ -162,25 +119,20 @@ namespace Manga_Reader
 
         public void ChangeCurrentContainer(string[] path)
         {
-            var curDir = this;
-
+            Container curDir = this;
             foreach (string part in path)
             {
-                if (curDir.dirs != null)
-                {
-                    curDir.currentDir = new Container(curDir.dirs[0], null);
-                    curDir.currentPage = null;
-                }
-                else
-                    curDir.currentPage = new Page(curDir.pages[0]);
-                curDir.currentDir = new Container(curDir.dirs.Find(container => container.Substring(container.LastIndexOf("\\")+1) == part), null);
+                curDir.currentDir = new Container(curDir.dirs.Find(container => container.Substring(container.LastIndexOf("\\") + 1) == part), null);
+
                 if (curDir.currentDir == null)
                     curDir.currentDir = new Container(curDir.dirs[0], null);
+                curDir.currentPage = curDir.GetCurrentPage();
+
                 curDir = curDir.currentDir;
             }
         }
 
-        private Container GetLastSubContainer()
+        protected Container GetLastSubContainer()
         {
             Container dir = this;
             while (dir.pages == null)
@@ -200,26 +152,63 @@ namespace Manga_Reader
             return n;
         }
 
-        public int RenamePages(string pattern, Hashtable hash, int n)
+        public int CountPagesUntil(string name)
+        {
+            if (Name == name)
+                return 0;
+
+            int n = 0;
+            if (dirs != null)
+            {
+                foreach (string dir in dirs)
+                {
+                    var d = new Container(dir, null);
+                    if (d.Name == name)
+                        break;
+                    n += d.PagesCount(0);
+                }
+            }
+            if (pages != null)
+                n += pages.Count();
+            return n;
+        }
+
+        public int RenamePages(string pattern, Hashtable hash, int n, string pageKey)
         {
             int count = 0;
             if (pages != null)
             {
+                var curPageIndex = pages.IndexOf(currentPage.Path);
                 foreach (string page in pages)
                 {
-                    new Page(page).Rename(pattern, hash, n++);
+                    new Page(page).Rename(pattern, hash, n++, pageKey);
                     count++;
                 }
+                UpdatePages(curPageIndex);
             }
             
             if (dirs == null)
-                return -1;
+                return count;
 
-            foreach(string dir in dirs)
+            foreach (string dir in dirs)
             {
-                count += new Container(dir, null).RenamePages(pattern, hash, n + count);
+                var newDir = new Container(dir, null);
+                count += newDir.RenamePages(pattern, hash, n + count, pageKey);
+                if (newDir.path == currentDir.path)
+                    currentDir = newDir;
             }
+            currentPage = GetCurrentPage();
             return count;
+        }
+
+        public void DeletePage(Page page)
+        {
+            var dir = GetLastSubContainer();
+            if (dir.pages != null)
+            {
+                dir.pages.Remove(page.Path);
+                page.Delete();
+            }
         }
     }
 }
