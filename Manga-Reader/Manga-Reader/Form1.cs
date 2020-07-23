@@ -250,26 +250,33 @@ namespace Manga_Reader
         {
             var keys = reader.Hashtable.Keys;
             List<ToolStripMenuItem> menus = new List<ToolStripMenuItem>();
-            foreach(string key in keys)
+            List<ToolStripMenuItem> shortcutsMenu = new List<ToolStripMenuItem>();
+            foreach (string key in keys)
             {
-                ToolStripMenuItem item = new ToolStripMenuItem();
+                ToolStripMenuItem menuItem = new ToolStripMenuItem();
 
-                item.Name = "renameMenu"+key;
-                item.Size = new Size(180, 22);
-                item.Text = "Rename " + key;
-                item.Click += new EventHandler(RenameKey);
-                ((ToolStripDropDownMenu)item.DropDown).ShowImageMargin = false;
+                menuItem.Name = "renameMenu"+key;
+                menuItem.Size = new Size(180, 22);
+                menuItem.Text = "Rename " + key;
+                menuItem.Click += new EventHandler(RenameKey);
+                ((ToolStripDropDownMenu)menuItem.DropDown).ShowImageMargin = false;
 
-                menus.Add(item);
+                menus.Add(menuItem);
+
+                ToolStripMenuItem shortcutItem = new ToolStripMenuItem();
+
+                shortcutItem.Name = "shortcutRename" + key;
+                shortcutItem.Size = new Size(180, 22);
+                shortcutItem.Text = key;
+                shortcutItem.Click += new EventHandler(ChangeDefaultRenameKey);
+                if (key == reader.DefaultRenameKey)
+                    shortcutItem.Checked = true;
+
+                shortcutsMenu.Add(shortcutItem);
             }
 
             renameToolStripMenuItem.DropDownItems.AddRange(menus.ToArray());
-        }
-
-        private void ShortutsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var frm = new frmShortcuts();
-            var dialogResult = frm.ShowDialog();
+            shortcutKeyToolStripMenuItem.DropDownItems.AddRange(shortcutsMenu.ToArray());
         }
 
         private void TvPath_MouseDown(object sender, MouseEventArgs e)
@@ -277,11 +284,27 @@ namespace Manga_Reader
             changeContainer = true;
         }
 
+        private void ShortcutsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new frmShortcuts(reader).ShowDialog();
+        }
+
         private void RenameKey(object sender, EventArgs e)
         {
             var key = ((ToolStripMenuItem)sender).Text.Split(' ')[1];
             reader.RenameKey(key);
             UpdateLabels();
+        }
+
+        private void ChangeDefaultRenameKey(object sender, EventArgs e)
+        {
+            var item = (ToolStripMenuItem)sender;
+            foreach (ToolStripMenuItem i in shortcutKeyToolStripMenuItem.DropDownItems)
+                i.Checked = false;
+            var key = item.Text;
+            item.Checked = true;
+
+            reader.DefaultRenameKey = key;
         }
     }
 }

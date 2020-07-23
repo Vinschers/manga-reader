@@ -12,12 +12,6 @@ namespace Manga_Reader
 {
     public class Reader
     {
-        class ReaderShortcut
-        {
-            public int Code { get; set; }
-            public string String { get; set; }
-            public Action<Reader> Function { get; set; }
-        }
         int depth;
         string root;
         string organization;
@@ -33,17 +27,12 @@ namespace Manga_Reader
         double zoom;
         List<string> hashKeys;
         string defaultRenameKey;
-        Hashtable shortcuts;
+        ReaderShortcuts shortcuts;
 
 
         const double ZOOM_RATIO = 1.5;
         const double MAX_ZOOM = 5.0625;
         const string PAGE_KEY = "$page";
-        ReaderShortcut[] shortcutsArray =
-        {
-            new ReaderShortcut { Code=4, String="Ctrl + D", Function= r => { r.DeleteCurrentPage(); } },
-            new ReaderShortcut { Code=18, String="Ctrl + R", Function= r => { r.RenameKey(r.DefaultRenameKey); } }
-        };
 
         public bool AutoRename { get => autoRename; set => autoRename = value; }
         public Page Page { get => page; }
@@ -70,7 +59,15 @@ namespace Manga_Reader
                     return defaultRenameKey;
                 return pageBreaker;
             }
+            set
+            {
+                if (hashKeys.IndexOf(value) != -1)
+                    defaultRenameKey = value;
+            }
         }
+
+        public List<string> HashKeys { get => hashKeys; }
+        internal ReaderShortcuts Shortcuts { get => shortcuts; }
 
         public Reader(string root, PictureBox pb, MyTreeView tv)
         {
@@ -87,7 +84,7 @@ namespace Manga_Reader
 
             UpdateImage();
 
-            SetupShortcuts();
+            shortcuts = new ReaderShortcuts(this);
         }
 
         public Reader(string root, string path, PictureBox pb, MyTreeView tv)
@@ -113,15 +110,7 @@ namespace Manga_Reader
 
             file.Close();
 
-            SetupShortcuts();
-        }
-
-        private void SetupShortcuts()
-        {
-            shortcuts = new Hashtable();
-
-            foreach (ReaderShortcut rs in shortcutsArray)
-                shortcuts[rs.Code.ToString()] = rs;
+            shortcuts = new ReaderShortcuts(this);
         }
 
         private int IteratePath()
@@ -357,6 +346,11 @@ namespace Manga_Reader
             page = folder.GetCurrentPage();
         }
 
+        public void Rename()
+        {
+            RenameKey(DefaultRenameKey);
+        }
+
         public void ChangeContainer(string path)
         {
             path = path.Replace(root + "\\", "");
@@ -480,7 +474,7 @@ namespace Manga_Reader
                 }
 
                 if (autoRename && values[keys.IndexOf(DefaultRenameKey)] != hash[DefaultRenameKey].ToString())
-                    RenameKey(DefaultRenameKey);
+                    Rename();
 
                 for (int k = 0; k < keys.Count; ++k)
                 {
@@ -489,6 +483,7 @@ namespace Manga_Reader
                 }
             }
             UpdateContainerKeys();
+            shortcuts.Update();
         }
 
         private bool CheckOrganizationMatch()
@@ -618,14 +613,23 @@ namespace Manga_Reader
         {
             bool shortcut = false;
 
-            ReaderShortcut s = (ReaderShortcut)shortcuts[key.ToString()];
+            Shortcut s = shortcuts[key.ToString()];
             if (s != null)
             {
-                s.Function(this);
+                s.Function();
                 shortcut = true;
             }
 
             return shortcut;
+        }
+
+        public void CopyToClipboard()
+        {
+            Image img;
+            using (var bmpTemp = new Bitmap(page.Path))
+            {
+                Clipboard.SetImage(new Bitmap(bmpTemp));
+            }
         }
     }
 }
