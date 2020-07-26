@@ -12,7 +12,7 @@ namespace Manga_Reader
         First=0,
         Last=-1
     }
-    public class Container
+    public class Container : IFolder
     {
         List<string> pages;
         List<string> dirs;
@@ -22,9 +22,12 @@ namespace Manga_Reader
         Container currentDir;
         string key;
 
+        public string Path { get => path; }
         public string Name { get => name; }
-        public List<string> Pages { get => pages; }
-        public Container CurrentDir { get => currentDir; }
+        public ICollection<string> Files { get => pages; }
+        public ICollection<string> Folders { get => dirs; }
+        public IFolder Dir { get => currentDir; }
+        public IFolder Parent { get => null; }
         public string Key { get => key; set => key = value; }
 
         private bool IsRecognisedImageFile(string fileName)
@@ -77,7 +80,7 @@ namespace Manga_Reader
             UpdateSubContainers();
         }
 
-        public Page GetCurrentPage()
+        public Page GetCurrentFile()
         {
             return GetLastSubContainer().currentPage;
         }

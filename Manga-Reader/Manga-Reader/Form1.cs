@@ -15,7 +15,6 @@ namespace Manga_Reader
 {
     public partial class frmMangaReader : Form
     {
-        Reader reader;
         bool changeContainer = false;
         Point mouseDownLocation, mouseLocation;
 
