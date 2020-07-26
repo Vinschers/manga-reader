@@ -31,7 +31,7 @@ namespace Manga_Reader
 
 
         const double ZOOM_RATIO = 1.5;
-        const double MAX_ZOOM = 5.0625;
+        const double MAX_ZOOM = 5;
         const string PAGE_KEY = "$page";
 
         public bool AutoRename { get => autoRename; set => autoRename = value; }
@@ -170,6 +170,9 @@ namespace Manga_Reader
             pictureBox.Top = pictureBox.Parent.Height / 2 - pictureBox.Height / 2;
             pictureBox.Image = new Bitmap(img);
             pictureBox.Invalidate();
+            int n = (int)Math.Round(Math.Log10(zoom) / Math.Log10(ZOOM_RATIO));
+            zoom = 1.0;
+            ApplyZoom(n, pictureBox.Width, 0);
         }
 
         public string GeneratePossiblePathOrganization()
@@ -304,8 +307,6 @@ namespace Manga_Reader
                 UpdateHash();
                 UpdateImage();
                 pageNumber += n;
-
-                zoom = 1.0;
             }
             catch
             {
@@ -369,7 +370,6 @@ namespace Manga_Reader
                 newDir = newDir.CurrentDir;
 
             pageNumber = dir.CountPagesUntil(newDir.Name) + 1;
-            zoom = 1.0;
         }
 
         private void UpdateContainerKeys()
@@ -560,7 +560,7 @@ namespace Manga_Reader
 
         public void ApplyZoom(int times, int x, int y)
         {
-            if (zoom * Math.Pow(ZOOM_RATIO, times) > MAX_ZOOM)
+            if (zoom * Math.Pow(ZOOM_RATIO, times) > Math.Pow(ZOOM_RATIO, MAX_ZOOM))
                 return;
 
             int left, top;
@@ -599,12 +599,18 @@ namespace Manga_Reader
 
         public void RemoveZoom(int times)
         {
-            if (pictureBox.Height / Math.Pow(ZOOM_RATIO, times) < pictureBox.Parent.Height)
+            if (times == 0)
                 return;
+
+            if (zoom / Math.Pow(ZOOM_RATIO, times) < 1.0)
+            {
+                RemoveZoom(times - 1);
+                return;
+            }
             pictureBox.Width = (int)Math.Round(pictureBox.Width / Math.Pow(ZOOM_RATIO, times));
             pictureBox.Height = (int)Math.Round(pictureBox.Height / Math.Pow(ZOOM_RATIO, times));
             pictureBox.Left = pictureBox.Parent.Width / 2 - pictureBox.Width / 2;
-            pictureBox.Top = 0;
+            pictureBox.Top = pictureBox.Parent.Height / 2 - pictureBox.Height / 2;
 
             zoom /= Math.Pow(ZOOM_RATIO, times);
         }
