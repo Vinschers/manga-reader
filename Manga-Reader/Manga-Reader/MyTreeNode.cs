@@ -1,14 +1,17 @@
 ﻿using System.Windows.Forms;
 
-class MyTreeNode : TreeNode
+namespace Manga_Reader
 {
-    private string filePath;
-
-    public MyTreeNode(string fp)
+    class MyTreeNode : TreeNode
     {
-        filePath = fp;
-        this.Text = fp.Substring(fp.LastIndexOf("\\")+1);
-    }
+        Container container;
 
-    public string FilePath { get => filePath; }
+        public Container Container { get => container; }
+        public MyTreeNode(Container cont)
+        {
+            container = cont;
+            this.Text = cont.Path.Substring(cont.Path.LastIndexOf("\\") + 1);
+            this.Name = cont.Path;
+        }
+    }
 }

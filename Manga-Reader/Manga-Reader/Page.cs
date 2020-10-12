@@ -1,38 +1,44 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 
 namespace Manga_Reader
 {
-    public class Page
+    public abstract class Page
     {
-        string name;
-        string path;
-        public Page(string path)
-        {
-            this.path = path;
-            name = path.Substring(path.LastIndexOf("\\") + 1, path.LastIndexOf(".") - path.LastIndexOf("\\") - 1);
-        }
+        protected string name;
+        protected Image image;
+        protected PageWrapper parent;
+        public PageWrapper Parent { get => parent; }
 
         public string Name { get => name; set => name = value; }
-        public string Path { get => path; set => path = value; }
+        public Image Image { get => GetImage(); }
 
-        public void Rename(string newName, Hashtable hash, int n, string pageKey)
+        protected abstract Image GetImage();
+
+        public override bool Equals(object obj)
         {
-            foreach (string key in hash.Keys)
-                newName = newName.Replace(key, hash[key].ToString());
-            newName = newName.Replace(pageKey, n + "");
-            newName = path.Substring(0, path.LastIndexOf("\\") + 1) + newName + path.Substring(path.LastIndexOf("."));
-            if (newName != path)
-            {
-                File.Move(path, newName);
-                path = newName;
-                name = path.Substring(path.LastIndexOf("\\") + 1, path.LastIndexOf(".") - path.LastIndexOf("\\") - 1);
-            }
+            if (!(obj is Page))
+                return false;
+            Page p = (Page)obj;
+
+            if (p.name != name)
+                return false;
+            if (p.image != image)
+                return false;
+            if (p.parent != parent)
+                return false;
+
+            return true;
         }
 
-        public void Delete()
+        public override int GetHashCode()
         {
-            File.Delete(path);
+            var hashCode = 7914707;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(name);
+            hashCode = hashCode * -1521134295 + EqualityComparer<PageWrapper>.Default.GetHashCode(parent);
+            return hashCode;
         }
     }
 }
