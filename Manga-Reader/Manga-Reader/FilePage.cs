@@ -50,7 +50,7 @@ namespace Manga_Reader
             }
         }
 
-        public override Image GetImage()
+        protected override Image GetImage()
         {
             using (var bmpTemp = new Bitmap(path))
             {

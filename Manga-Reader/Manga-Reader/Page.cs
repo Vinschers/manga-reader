@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
@@ -12,9 +13,9 @@ namespace Manga_Reader
         public Container Parent { get => parent; }
 
         public string Name { get => name; set => name = value; }
-        public Image Img { get => image; }
+        public Image Image { get => GetImage(); }
 
-        public abstract Image GetImage();
+        protected abstract Image GetImage();
 
         public override bool Equals(object obj)
         {
@@ -30,6 +31,14 @@ namespace Manga_Reader
                 return false;
 
             return true;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = 7914707;
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(name);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Container>.Default.GetHashCode(parent);
+            return hashCode;
         }
     }
 }

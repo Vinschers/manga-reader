@@ -102,9 +102,6 @@
             this.pbPage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbPage.TabIndex = 2;
             this.pbPage.TabStop = false;
-            this.pbPage.DoubleClick += new System.EventHandler(this.PbPage_DoubleClick);
-            this.pbPage.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PbPage_MouseDown);
-            this.pbPage.MouseMove += new System.Windows.Forms.MouseEventHandler(this.PbPage_MouseMove);
             // 
             // pnlPage
             // 
@@ -163,11 +160,6 @@
             this.tvPath.Name = "tvPath";
             this.tvPath.Size = new System.Drawing.Size(201, 628);
             this.tvPath.TabIndex = 1;
-            this.tvPath.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.TvPath_AfterSelect);
-            this.tvPath.KeyDown += new System.Windows.Forms.KeyEventHandler(this.TvPath_KeyDown);
-            this.tvPath.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.TvPath_KeyPress);
-            this.tvPath.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TvPath_KeyUp);
-            this.tvPath.MouseDown += new System.Windows.Forms.MouseEventHandler(this.TvPath_MouseDown);
             // 
             // helpToolStripMenuItem
             // 

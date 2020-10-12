@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace Manga_Reader
 {
-    public partial class frmSetup : Form
+    partial class frmSetup : Form
     {
         Reader reader;
         public frmSetup(string structure, string template, string counter, Reader r)
@@ -27,9 +27,9 @@ namespace Manga_Reader
         {
             try
             {
-                reader.SetPathOrganization(txtStructure.Text);
+                /*reader.SetPathOrganization(txtStructure.Text);
                 reader.SetRenameTemplate(txtRename.Text);
-                reader.SetPageBreaker(txtCounter.Text);
+                reader.SetPageBreaker(txtCounter.Text);*/
 
                 this.DialogResult = DialogResult.OK;
                 Close();

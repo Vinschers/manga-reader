@@ -24,10 +24,13 @@ namespace Manga_Reader
         {
             this.path = path;
             GetPages();
+            if (pages.Count() > 0)
+                currentPage = pages.ElementAt(0);
         }
 
         protected abstract void GetPages();
         public abstract int ChangePage(int n);
         public abstract void DeleteCurrentPage();
+        public abstract void SetPage(int p);
     }
 }

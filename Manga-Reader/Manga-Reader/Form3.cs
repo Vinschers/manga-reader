@@ -12,8 +12,8 @@ namespace Manga_Reader
 {
     public partial class frmShortcuts : Form
     {
-        Reader reader;
-        public frmShortcuts(Reader r)
+        Readere reader;
+        public frmShortcuts(Readere r)
         {
             InitializeComponent();
             reader = r;
@@ -38,7 +38,7 @@ namespace Manga_Reader
             var point = new Point(0, 0);
             var padding = 10;
 
-            foreach(Shortcut s in reader.Shortcuts.Values)
+            /*foreach(Shortcut s in reader.Shortcuts.Values)
             {
                 point.X = 0;
                 var lblKeys = GetLabel(s.Keys, point);
@@ -52,7 +52,7 @@ namespace Manga_Reader
                 point.X += lblHelp.Width + padding;
 
                 point.Y += lblHelp.Height + 5;
-            }
+            }*/
         }
     }
 }

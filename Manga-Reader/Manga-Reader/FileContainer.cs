@@ -17,6 +17,8 @@ namespace Manga_Reader
 
         public FileContainer(FileContainer parent, string path) : base(parent, path)
         { }
+        public FileContainer(string path) : base(path)
+        { }
         public FileContainer(FileContainer parent, string path, string key) : base(parent, path)
         {
             this.key = key;
@@ -33,7 +35,7 @@ namespace Manga_Reader
 
                 foreach (var dir in dirs)
                 {
-                    containers.Add(new FileContainer(this, path + "\\" + dir));
+                    containers.Add(new FileContainer(this, dir));
                 }
             }
         }

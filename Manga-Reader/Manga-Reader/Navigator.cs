@@ -12,6 +12,8 @@ namespace Manga_Reader
         Container currentContainer;
 
         public Container CurrentContainer { get => currentContainer; }
+        public Page Page { get => currentContainer.PageWrapper.CurrentPage; }
+        public Container Root { get => root; }
 
         public Navigator(Container root)
         {
@@ -21,7 +23,7 @@ namespace Manga_Reader
 
         private void FindCurrentContainer(Container start)
         {
-            void ResetCurrentContainerRec(Container r)
+            void FindCurrentContainerRec(Container r)
             {
                 if (r.PageWrapper.Pages.Count() > 0)
                 {
@@ -30,45 +32,62 @@ namespace Manga_Reader
                 }
                 foreach (Container container in r.Containers)
                 {
-                    ResetCurrentContainerRec(container);
+                    FindCurrentContainerRec(container);
                     if (currentContainer != null)
                         return;
                 }
             }
             currentContainer = null;
-            ResetCurrentContainerRec(start);
+            FindCurrentContainerRec(start);
         }
 
         private void FindNextCurrentContainer()
         {
-            Container curr = currentContainer;
-            while(true)
+            try
             {
-                Container parent = curr.Parent;
-                int startIndex = parent.Containers.IndexOf(curr) + 1;
-                for (int i = startIndex; i < parent.Containers.Count(); i++)
+                Container curr = currentContainer;
+                while (true)
                 {
-                    FindCurrentContainer(parent.Containers.ElementAt(i));
-                    if (currentContainer != null)
-                        return;
+                    Container parent = curr.Parent;
+                    int startIndex = parent.Containers.IndexOf(curr) + 1;
+                    for (int i = startIndex; i < parent.Containers.Count(); i++)
+                    {
+                        FindCurrentContainer(parent.Containers.ElementAt(i));
+                        if (currentContainer != null)
+                            return;
+                    }
+                    curr = parent;
                 }
-                curr = parent;
+            }
+            catch
+            {
+                throw new Exception("End reached!");
             }
         }
         private void FindPreviousCurrentContainer()
         {
-            Container curr = currentContainer;
-            while (true)
+            try
             {
-                Container parent = curr.Parent;
-                int startIndex = parent.Containers.IndexOf(curr) - 1;
-                for (int i = startIndex; i > 0; i--)
+                Container curr = currentContainer;
+                while (true)
                 {
-                    FindCurrentContainer(parent.Containers.ElementAt(i));
-                    if (currentContainer != null)
-                        return;
+                    Container parent = curr.Parent;
+                    int startIndex = parent.Containers.IndexOf(curr) - 1;
+                    for (int i = startIndex; i > 0; i--)
+                    {
+                        FindCurrentContainer(parent.Containers.ElementAt(i));
+                        if (currentContainer != null)
+                        {
+                            currentContainer.PageWrapper.SetPage(-1);
+                            return;
+                        }
+                    }
+                    curr = parent;
                 }
-                curr = parent;
+            }
+            catch
+            {
+                throw new Exception("Start reached!");
             }
         }
 

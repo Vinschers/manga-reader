@@ -14,9 +14,11 @@ namespace Manga_Reader
         protected Container parent;
         protected string name;
         protected string path;
+        protected int depth;
 
         public string Path { get => path; }
         public string Name { get => name; }
+        public int Depth { get => depth; }
         public PageWrapper PageWrapper { get => pageWrapper; }
         public List<Container> Containers { get => containers; }
         public Container Parent { get => parent; }
@@ -25,6 +27,7 @@ namespace Manga_Reader
         {
             this.parent = parent;
             containers = new List<Container>();
+            depth = -1;
         }
         public Container(Container parent, string path) : this(parent)
         {
@@ -32,6 +35,17 @@ namespace Manga_Reader
             name = path.Substring(path.LastIndexOf("\\") + 1);
 
             Reset();
+            GetDepth();
+        }
+        public Container(string path)
+        {
+            containers = new List<Container>();
+            this.path = path;
+            name = path.Substring(path.LastIndexOf("\\") + 1);
+            depth = -1;
+
+            Reset();
+            GetDepth();
         }
 
         protected abstract void Reset();
@@ -68,6 +82,33 @@ namespace Manga_Reader
             if (c.Path != this.Path)
                 return false;
             return true;
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1904681517;
+            hashCode = hashCode * -1521134295 + EqualityComparer<List<Container>>.Default.GetHashCode(containers);
+            hashCode = hashCode * -1521134295 + EqualityComparer<PageWrapper>.Default.GetHashCode(pageWrapper);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Container>.Default.GetHashCode(parent);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(name);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(path);
+            return hashCode;
+        }
+
+        protected void GetDepth()
+        {
+            depth = 0;
+
+            void GetDepthRec(Container root, int current)
+            {
+                if (current > depth)
+                    depth = current;
+                current++;
+                foreach(Container cont in root.containers)
+                    GetDepthRec(cont, current);
+            }
+
+            GetDepthRec(this, 0);
         }
     }
 }

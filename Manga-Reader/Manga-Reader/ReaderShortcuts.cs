@@ -26,9 +26,9 @@ namespace Manga_Reader
     }
     class ReaderShortcuts
     {
-        Reader reader;
+        Readere reader;
         Hashtable shortcuts;
-        public ReaderShortcuts(Reader r)
+        public ReaderShortcuts(Readere r)
         {
             reader = r;
         }
@@ -40,7 +40,7 @@ namespace Manga_Reader
 
         public void Update()
         {
-            shortcuts = new Hashtable();
+            /*shortcuts = new Hashtable();
 
             Shortcut delete = new Shortcut();
             delete.Code = ShortcutCodes.Delete;
@@ -61,7 +61,7 @@ namespace Manga_Reader
             copy.Keys = "Ctrl + C";
             copy.Function = reader.CopyToClipboard;
             copy.Help = "Copies current page to clipboard";
-            shortcuts.Add(copy+"", copy);
+            shortcuts.Add(copy+"", copy);*/
         }
 
         public List<Shortcut> Values

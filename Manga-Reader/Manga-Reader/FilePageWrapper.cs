@@ -35,7 +35,7 @@ namespace Manga_Reader
             files = files.OrderBy(x => Regex.Replace(x, "[0-9]+", match => match.Value.PadLeft(10, '0'))).ToArray();
 
             foreach (string file in files)
-                pages.Add(new FilePage(path + "\\" + file));
+                pages.Add(new FilePage(file));
         }
 
         public override void Reset()
@@ -87,7 +87,14 @@ namespace Manga_Reader
             else if (currentIndex + n < 0)
                 return currentIndex + n;
 
+            currentPage = pages.ElementAt(currentIndex + n);
             return 0;
+        }
+        public override void SetPage(int p)
+        {
+            if (p < 0)
+                p = pages.Count() + p;
+            currentPage = pages.ElementAt(p);
         }
         private string BuildNewPageName(string pattern, Hashtable hash, int n, string pageKey)
         {
