@@ -11,9 +11,10 @@ namespace Manga_Reader
     class FilePage : Page
     {
         string path;
-        public FilePage(string path)
+        public FilePage(string path, PageWrapper parent)
         {
             this.path = path;
+            this.parent = parent;
             name = path.Substring(path.LastIndexOf("\\") + 1, path.LastIndexOf(".") - path.LastIndexOf("\\") - 1);
         }
         public string Path { get => path; set => path = value; }

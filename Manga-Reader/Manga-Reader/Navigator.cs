@@ -8,8 +8,8 @@ namespace Manga_Reader
 {
     class Navigator
     {
-        Container root;
-        Container currentContainer;
+        protected Container root;
+        protected Container currentContainer;
 
         public Container CurrentContainer { get => currentContainer; }
         public Page Page { get => currentContainer.PageWrapper.CurrentPage; }
@@ -73,12 +73,12 @@ namespace Manga_Reader
                 {
                     Container parent = curr.Parent;
                     int startIndex = parent.Containers.IndexOf(curr) - 1;
-                    for (int i = startIndex; i > 0; i--)
+                    for (int i = startIndex; i >= 0; i--)
                     {
                         FindCurrentContainer(parent.Containers.ElementAt(i));
                         if (currentContainer != null)
                         {
-                            currentContainer.PageWrapper.SetPage(-1);
+                            SetPage(parent.Containers.ElementAt(i), - 1);
                             return;
                         }
                     }
@@ -90,6 +90,58 @@ namespace Manga_Reader
                 throw new Exception("Start reached!");
             }
         }
+        public Container GetContainerKey(string key)
+        {
+            Container cont = currentContainer;
+
+            while (cont.Key != key)
+                cont = cont.Parent;
+
+            return cont;
+        }
+        public int GetPageNumber(string key)
+        {
+            Container cKey = GetContainerKey(key);
+            Container current = currentContainer;
+            int page = current.PageWrapper.Pages.IndexOf(Page) + 1; //start in 1 not 0
+
+            do
+            {
+                var parent = current.Parent;
+
+                for (int i = 0; i < parent.Containers.IndexOf(current); i++)
+                    page += parent.Containers.ElementAt(i).PagesCount(0);
+
+                page += parent.PageWrapper.Pages.Count();
+
+                current = parent;
+            } while (current.Key != cKey.Key);
+
+            return page;
+        }
+        public void SetPage(Container root, int n)
+        {
+            if (n < 0)
+                n = root.PagesCount(0) + n;
+            int counter = root.PageWrapper.Pages.Count();
+            if (counter > n)
+            {
+                currentContainer = root;
+                currentContainer.PageWrapper.SetPage(n);
+                return;
+            }
+
+            foreach(Container c in root.Containers)
+            {
+                counter += c.PagesCount(0);
+                if (counter > n)
+                {
+                    currentContainer = c;
+                    currentContainer.PageWrapper.SetPage(counter - n);
+                    return;
+                }
+            }
+        }
 
         public void ChangePage(int n)
         {
@@ -99,9 +151,23 @@ namespace Manga_Reader
             var rest = currentContainer.PageWrapper.ChangePage(n);
 
             if (rest > 0)
+            {
                 FindNextCurrentContainer();
+                int count = currentContainer.PagesCount(0);
+                if (count > rest)
+                    rest = 0;
+                else
+                    rest -= count;
+            }
             else if (rest < 0)
+            {
                 FindPreviousCurrentContainer();
+                int count = currentContainer.PagesCount(0);
+                if (count > Math.Abs(rest))
+                    rest = 0;
+                else
+                    rest += count;
+            }
 
             ChangePage(rest);
         }
@@ -113,9 +179,18 @@ namespace Manga_Reader
                 throw new Exception("Container not found");
         }
 
-        public void DeletePage()
+        public int DeletePage()
         {
-            currentContainer.PageWrapper.DeleteCurrentPage();
+            return currentContainer.PageWrapper.DeleteCurrentPage();
+        }
+
+        public void RenameKey(string key)
+        {
+            Container cont = currentContainer;
+
+            while (cont.Key != key)
+                cont = cont.Parent;
+            //
         }
     }
 }

@@ -11,6 +11,7 @@ namespace Manga_Reader
         {
             container = cont;
             this.Text = cont.Path.Substring(cont.Path.LastIndexOf("\\") + 1);
+            this.Name = cont.Path;
         }
     }
 }

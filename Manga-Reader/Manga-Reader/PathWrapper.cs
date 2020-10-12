@@ -13,9 +13,10 @@ namespace Manga_Reader
         protected string organization, template, pageBreaker, defaultRenameKey;
         protected Hashtable hash;
         protected List<string> hashKeys;
-        protected int pageNumber;
 
         public int Depth { get => root.Depth; }
+        public string Organization { get => organization; }
+        public string Template { get => template; }
         public string DefaultRenameKey
         {
             get
@@ -31,22 +32,20 @@ namespace Manga_Reader
             }
         }
         public List<string> Keys { get => hashKeys; }
+        public string PageBreaker { get => pageBreaker; set => SetPageBreaker(value); }
 
         public PathWrapper()
         {
             hash = new Hashtable();
             hashKeys = new List<string>();
-            pageNumber = -1;
         }
 
-        public PathWrapper(string path) : this()
+        public PathWrapper(Container root) : this()
         {
-            root = GetRootContainer(path);
+            this.root = root;
         }
-
-        protected abstract Container GetRootContainer(string path);
-        protected abstract string GetCurrentPath();
-        protected bool CheckOrganizationMatch()
+        protected abstract string GetRelativePath(string fp);
+        protected bool CheckOrganizationMatch(string fp)
         {
             var orgParts = organization.Split('\\');
             if (orgParts[orgParts.Length - 1] != "")
@@ -55,7 +54,7 @@ namespace Manga_Reader
                 auxParts.Add("");
                 orgParts = auxParts.ToArray();
             }
-            var pathParts = GetCurrentPath().Split('\\');
+            var pathParts = GetRelativePath(fp).Split('\\');
             pathParts = pathParts.Skip(Math.Max(0, pathParts.Count() - orgParts.Length)).ToArray();
 
             for (int i = 0; i < orgParts.Length; ++i)
@@ -111,16 +110,17 @@ namespace Manga_Reader
         public abstract string GeneratePossiblePathOrganization();
         public abstract string GeneratePossibleRenameTemplate();
         public abstract string GeneratePossiblePageBreaker();
-        public void SetPathOrganization(string org)
+        public void SetPathOrganization(string org, string path)
         {
             this.organization = org;
-            UpdateHash();
+            UpdateHash(path);
         }
         public abstract void SetRenameTemplate(string t);
-        protected abstract void UpdateContainerKeys();
-        protected void UpdateHash()
+        public abstract void SetPageBreaker(string pBreak);
+        public abstract void UpdateContainerKeys();
+        protected void UpdateHash(string path)
         {
-            if (!CheckOrganizationMatch())
+            if (!CheckOrganizationMatch(path))
                 throw new Exception("Structure given does not match actual folder structure");
 
             this.hashKeys = new List<string>();
@@ -132,7 +132,7 @@ namespace Manga_Reader
                 auxParts.Add("");
                 orgParts = auxParts.ToArray();
             }
-            var pathParts = GetCurrentPath().Split('\\');
+            var pathParts = GetRelativePath(path).Split('\\');
             pathParts = pathParts.Skip(Math.Max(0, pathParts.Count() - orgParts.Length)).ToArray();
 
             for (int i = 0; i < orgParts.Length; ++i)
@@ -198,15 +198,6 @@ namespace Manga_Reader
 
                 if (keys.Count != values.Count)
                     throw new Exception("Something went wrong...");
-                int pageBreakerIndex = keys.IndexOf(pageBreaker);
-                if (pageBreakerIndex != -1 && hash.Contains(pageBreaker))
-                {
-                    if (hash[pageBreaker].ToString() != values[pageBreakerIndex])
-                        pageNumber = 0;
-                }
-
-                //if (autoRename && values[keys.IndexOf(DefaultRenameKey)] != hash[DefaultRenameKey].ToString())
-                //    Rename();
 
                 for (int k = 0; k < keys.Count; ++k)
                 {

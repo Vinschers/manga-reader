@@ -27,9 +27,9 @@ namespace Manga_Reader
         {
             try
             {
-                /*reader.SetPathOrganization(txtStructure.Text);
-                reader.SetRenameTemplate(txtRename.Text);
-                reader.SetPageBreaker(txtCounter.Text);*/
+                reader.PathWrapper.SetPathOrganization(txtStructure.Text, reader.Navigator.CurrentContainer.PageWrapper.Path);
+                reader.PathWrapper.SetRenameTemplate(txtRename.Text);
+                reader.PathWrapper.SetPageBreaker(txtCounter.Text);
 
                 this.DialogResult = DialogResult.OK;
                 Close();

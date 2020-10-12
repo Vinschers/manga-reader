@@ -20,9 +20,10 @@ namespace Manga_Reader
 
         public abstract void Reset();
 
-        public PageWrapper(string path)
+        public PageWrapper(Container parent)
         {
-            this.path = path;
+            this.path = parent.Path;
+            this.parent = parent;
             GetPages();
             if (pages.Count() > 0)
                 currentPage = pages.ElementAt(0);
@@ -30,7 +31,7 @@ namespace Manga_Reader
 
         protected abstract void GetPages();
         public abstract int ChangePage(int n);
-        public abstract void DeleteCurrentPage();
+        public abstract int DeleteCurrentPage();
         public abstract void SetPage(int p);
     }
 }

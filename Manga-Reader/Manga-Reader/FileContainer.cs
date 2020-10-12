@@ -11,18 +11,12 @@ namespace Manga_Reader
 {
     class FileContainer : Container
     {
-        private string key;
-
-        public string Key { get => key; set => key = value; }
-
         public FileContainer(FileContainer parent, string path) : base(parent, path)
         { }
         public FileContainer(string path) : base(path)
         { }
-        public FileContainer(FileContainer parent, string path, string key) : base(parent, path)
-        {
-            this.key = key;
-        }
+        public FileContainer(FileContainer parent, string path, string key) : base(parent, path, key)
+        { }
 
         private void ResetContainers()
         {
@@ -43,7 +37,7 @@ namespace Manga_Reader
         protected override void Reset()
         {
             ResetContainers();
-            pageWrapper = new FilePageWrapper(this.path);
+            pageWrapper = new FilePageWrapper(this);
         }
     }
 }

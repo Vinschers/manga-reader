@@ -11,7 +11,7 @@ namespace Manga_Reader
 {
     class FilePageWrapper : PageWrapper
     {
-        public FilePageWrapper(string path) : base(path)
+        public FilePageWrapper(Container parent) : base(parent)
         { }
         private bool IsRecognisedImageFile(string fileName)
         {
@@ -35,55 +35,19 @@ namespace Manga_Reader
             files = files.OrderBy(x => Regex.Replace(x, "[0-9]+", match => match.Value.PadLeft(10, '0'))).ToArray();
 
             foreach (string file in files)
-                pages.Add(new FilePage(file));
+                pages.Add(new FilePage(file, this));
         }
 
         public override void Reset()
         {
             GetPages();
         }
-        /*
-        public void ChangePage(int n, MyTreeView tv = null)
-        {
-            if (pages != null)
-            {
-                int index = pages.IndexOf(currentPage.Path);
-                index += n;
-
-                if (index >= pages.Count || index < 0)
-                {
-                    if (tv != null)
-                        tv.SelectedNode = n > 0 ? tv.SelectedNode.NextNode : tv.SelectedNode.PrevNode;
-                    throw new Exception();
-                }
-                else
-                    currentPage = new Page(pages.ElementAt(index));
-            }
-            else
-            {
-                try
-                {
-                    currentDir.ChangePage(n, tv);
-                    currentPage = currentDir.GetCurrentPage();
-                }
-                catch
-                {
-                    int dirIndex = dirs.IndexOf(currentDir.path);
-                    if (n > 0)
-                        currentDir = new Container(dirs.ElementAt(dirIndex + 1), key);
-                    else
-                        currentDir = new Container(dirs.ElementAt(dirIndex - 1), key, DefaultPage.Last);
-                    currentPage = currentDir.GetCurrentPage();
-                }
-            }
-        }
-        */
         public override int ChangePage(int n)
         {
             int currentIndex = pages.IndexOf(currentPage);
 
-            if (currentIndex + n > pages.Count())
-                return currentIndex + n - pages.Count();
+            if (currentIndex + n >= pages.Count())
+                return currentIndex + n - pages.Count() + 1;
             else if (currentIndex + n < 0)
                 return currentIndex + n;
 
@@ -131,9 +95,20 @@ namespace Manga_Reader
             pageFile.Delete();
         }
 
-        public override void DeleteCurrentPage()
+        public override int DeleteCurrentPage()
         {
+            int indexCurrent = pages.IndexOf(currentPage);
             DeletePage(currentPage);
+            if (indexCurrent < pages.Count())
+            {
+                currentPage = pages.ElementAt(indexCurrent);
+                return 1;
+            }
+            else
+            {
+                currentPage = pages.ElementAt(indexCurrent - 1);
+                return -1;
+            }
         }
     }
 }

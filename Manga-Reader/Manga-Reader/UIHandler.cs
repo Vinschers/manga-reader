@@ -16,7 +16,7 @@ namespace Manga_Reader
         protected Label lblManga;
         protected MyTreeView treeView;
         protected MenuStrip menuStrip;
-        protected ToolStripMenuItem renameToolStripMenuItem, shortcutToolStripMenuItem;
+        protected ToolStripMenuItem renameToolStripMenuItem;
         protected Point mouseDownLocation, mouseLocation;
 
         protected double zoom = 1.0;
@@ -30,7 +30,7 @@ namespace Manga_Reader
         public double Zoom { get => zoom; }
 
         public UIHandler(Form frm, Panel pnl, PictureBox pb, MyTreeView tv, MenuStrip ms, Label page, Label manga,
-            ToolStripMenuItem rename, ToolStripMenuItem shortcut, Action<Container> chgContainer)
+            ToolStripMenuItem rename, Action<Container> chgContainer)
         {
             form = frm;
             panel = pnl;
@@ -40,7 +40,6 @@ namespace Manga_Reader
             lblPage = page;
             lblManga = manga;
             renameToolStripMenuItem = rename;
-            shortcutToolStripMenuItem = shortcut;
             changeContainerTreeView = chgContainer;
 
             SetupEvents();
@@ -70,7 +69,7 @@ namespace Manga_Reader
             lblPage.Top = panel.Top + panel.Height + 20;
             lblManga.Top = lblPage.Top + lblPage.Height + 5;
         }
-        public void SetupRenameMenu(PathWrapper pw, EventHandler renameKey, EventHandler changeKey)
+        public void SetupRenameMenu(PathWrapper pw, EventHandler renameKey)
         {
             List<ToolStripMenuItem> menus = new List<ToolStripMenuItem>();
             List<ToolStripMenuItem> shortcutsMenu = new List<ToolStripMenuItem>();
@@ -84,22 +83,13 @@ namespace Manga_Reader
                 menuItem.Click += new EventHandler(renameKey);
                 ((ToolStripDropDownMenu)menuItem.DropDown).ShowImageMargin = false;
 
+                if (key == pw.Keys.Last())
+                    menuItem.ShortcutKeys = Keys.Control | Keys.R;
+
                 menus.Add(menuItem);
-
-                ToolStripMenuItem shortcutItem = new ToolStripMenuItem();
-
-                shortcutItem.Name = "shortcutRename" + key;
-                shortcutItem.Size = new Size(180, 22);
-                shortcutItem.Text = key;
-                shortcutItem.Click += new EventHandler(changeKey);
-                if (key == pw.DefaultRenameKey)
-                    shortcutItem.Checked = true;
-
-                shortcutsMenu.Add(shortcutItem);
             }
 
             renameToolStripMenuItem.DropDownItems.AddRange(menus.ToArray());
-            shortcutToolStripMenuItem.DropDownItems.AddRange(shortcutsMenu.ToArray());
         }
         public void SetupTreeView(Container root)
         {
@@ -123,6 +113,11 @@ namespace Manga_Reader
             while (node.Nodes != null && node.Nodes.Count > 0)
                 node = node.Nodes[0];
             treeView.SelectedNode = node;
+        }
+
+        public void UpdateSelectedNode(Container cont)
+        {
+            treeView.SelectedNode = treeView.Nodes.Find(cont.Path, true)[0] as MyTreeNode;
         }
 
         public void UpdateImage(Image img)
@@ -301,6 +296,7 @@ namespace Manga_Reader
             {
                 var container = ((MyTreeNode)treeView.SelectedNode).Container;
                 changeContainerTreeView(container);
+                UpdateSelectedNode(container);
             }
             catch { }
             changeContainer = false;

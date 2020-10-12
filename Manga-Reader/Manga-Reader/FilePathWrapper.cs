@@ -11,12 +11,14 @@ namespace Manga_Reader
     {
         protected string currentPath;
 
-        const string PAGE_KEY = "$page";
+        public const string PAGE_KEY = "$page";
 
         public string CurrentPath {get => currentPath; set => currentPath = value; }
 
-        public FilePathWrapper(string path) : base(path)
-        { }
+        public FilePathWrapper(Container root) : base(root)
+        {
+            currentPath = root.Path;
+        }
 
         public override string GeneratePossiblePathOrganization()
         {
@@ -106,7 +108,7 @@ namespace Manga_Reader
                         throw new Exception("Unrecognized template!");
             this.template = t;
         }
-        public void SetPageBreaker(string b)
+        public override void SetPageBreaker(string b)
         {
             if (b == "")
             {
@@ -130,27 +132,27 @@ namespace Manga_Reader
             this.pageBreaker = b;
         }
         
-        protected override string GetCurrentPath()
+        protected override string GetRelativePath(string fullPath)
         {
-            return currentPath;
+            int partsAbsolutePath = currentPath.Split('\\').Length - 1;
+            string[] parts = fullPath.Split('\\');
+            string ret = "";
+            for (int i = partsAbsolutePath; i < parts.Length; i++)
+                ret += parts[i] + "\\";
+            return ret;
         }
 
-        protected override void UpdateContainerKeys()
+        public override void UpdateContainerKeys()
         {
             void UpdateContainerKeysRec(FileContainer start, int keyIndex)
             {
                 start.Key = hashKeys[keyIndex];
 
                 foreach (FileContainer fc in start.Containers)
-                    UpdateContainerKeysRec(fc, keyIndex++);
+                    UpdateContainerKeysRec(fc, keyIndex + 1);
             }
 
             UpdateContainerKeysRec(root as FileContainer, 0);
-        }
-
-        protected override Container GetRootContainer(string path)
-        {
-            return new FileContainer(path);
         }
     }
 }

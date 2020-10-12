@@ -9,8 +9,8 @@ namespace Manga_Reader
     {
         protected string name;
         protected Image image;
-        protected Container parent;
-        public Container Parent { get => parent; }
+        protected PageWrapper parent;
+        public PageWrapper Parent { get => parent; }
 
         public string Name { get => name; set => name = value; }
         public Image Image { get => GetImage(); }
@@ -37,7 +37,7 @@ namespace Manga_Reader
         {
             var hashCode = 7914707;
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(name);
-            hashCode = hashCode * -1521134295 + EqualityComparer<Container>.Default.GetHashCode(parent);
+            hashCode = hashCode * -1521134295 + EqualityComparer<PageWrapper>.Default.GetHashCode(parent);
             return hashCode;
         }
     }

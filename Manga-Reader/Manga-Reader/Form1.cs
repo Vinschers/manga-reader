@@ -22,8 +22,10 @@ namespace Manga_Reader
         {
             InitializeComponent();
 
-            uiHandler = new UIHandler(this, pnlPage, pbPage, tvPath, menuStrip1, lblPage, lblManga, renameToolStripMenuItem, shortcutKeyToolStripMenuItem,
+            uiHandler = new UIHandler(this, pnlPage, pbPage, tvPath, menuStrip1, lblPage, lblManga, renameToolStripMenuItem,
                 (container) => { reader.ChangeContainer(container); uiHandler.UpdateLabels(reader.Page.Name, reader.Name); uiHandler.UpdateImage(reader.Page.Image); });
+
+            SetupShortcuts();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -56,7 +58,12 @@ namespace Manga_Reader
 
             uiHandler.SetupPanel();
 
-            reader = new Reader(new Navigator(new FileContainer(root)), new FilePathWrapper(root));
+            FileContainer rootContainer = new FileContainer(root);
+            reader = new Reader(new Navigator(rootContainer), new FilePathWrapper(rootContainer));
+
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Manga-Reader");
+            if (Directory.Exists(path))
+                reader.LoadConfigs(path + "\\configs.txt");
 
             var frm2 = new frmSetup(reader.PathWrapper.GeneratePossiblePathOrganization(), reader.PathWrapper.GeneratePossibleRenameTemplate(),
                 reader.PathWrapper.GeneratePossiblePageBreaker(), reader);
@@ -67,10 +74,17 @@ namespace Manga_Reader
 
             uiHandler.UpdateLabels(reader.Page.Name, reader.Name);
 
-            uiHandler.SetupRenameMenu(reader.PathWrapper, RenameKey, ChangeDefaultRenameKey);
+            uiHandler.SetupRenameMenu(reader.PathWrapper, RenameKey);
             uiHandler.SetupTreeView(reader.Navigator.Root);
 
+            reader.PathWrapper.DefaultRenameKey = reader.PathWrapper.Keys.Last();
+
             uiHandler.UpdateImage(reader.Page.Image);
+        }
+
+        private void SetupShortcuts()
+        {
+            deleteCurrentPageToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.D;
         }
 
 
@@ -89,6 +103,7 @@ namespace Manga_Reader
                     uiHandler.UpdateLabels(reader.Page.Name, reader.Name);
                 }
                 uiHandler.UpdateImage(reader.Page.Image);
+                uiHandler.UpdateSelectedNode(reader.Navigator.CurrentContainer);
             }
             catch(Exception ex)
             {
@@ -100,16 +115,9 @@ namespace Manga_Reader
             }
         }
 
-        private void FrmMangaReader_KeyPress(object sender, KeyPressEventArgs e)
-        {
-            /*bool shortcut = reader.Shortcut(e.KeyChar);
-            if (shortcut)
-                uiHandler.UpdateLabels();*/
-        }
-
         private void SaveSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            /*string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Manga-Reader");
+            string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Manga-Reader");
             Directory.CreateDirectory(path);
 
             var sw = new StreamWriter(path + "\\configs.txt");
@@ -117,8 +125,8 @@ namespace Manga_Reader
             sw.Close();
 
             sw = new StreamWriter(path + "\\root.txt");
-            sw.Write(reader.Root);
-            sw.Close();*/
+            sw.Write(reader.Navigator.Root.Path);
+            sw.Close();
         }
 
         private string GetPreviousRoot()
@@ -136,32 +144,24 @@ namespace Manga_Reader
             }
         }
 
-        private void AutoRenameToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //autoRenameToolStripMenuItem.Checked = reader.AutoRename = !autoRenameToolStripMenuItem.Checked;
-        }
-
-        private void ShortcutsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            //new frmShortcuts(reader).ShowDialog();
-        }
-
         private void RenameKey(object sender, EventArgs e)
         {
-            /*var key = ((ToolStripMenuItem)sender).Text.Split(' ')[1];
+            var key = ((ToolStripMenuItem)sender).Text.Split(' ')[1];
             reader.RenameKey(key);
-            UpdateLabels();*/
+            uiHandler.UpdateLabels(reader.Page.Name, reader.Name);
         }
 
-        private void ChangeDefaultRenameKey(object sender, EventArgs e)
+        private void DeleteCurrentPageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var item = (ToolStripMenuItem)sender;
-            foreach (ToolStripMenuItem i in shortcutKeyToolStripMenuItem.DropDownItems)
-                i.Checked = false;
-            var key = item.Text;
-            item.Checked = true;
+            reader.DeleteCurrent();
+            uiHandler.UpdateImage(reader.Page.Image);
+            uiHandler.UpdateLabels(reader.Page.Name, reader.Name);
+        }
 
-            reader.PathWrapper.DefaultRenameKey = key;
+        private void FrmMangaReader_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.C && ModifierKeys == Keys.Control)
+                reader.CopyToClipboard();
         }
     }
 }

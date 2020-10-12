@@ -15,7 +15,9 @@ namespace Manga_Reader
         protected string name;
         protected string path;
         protected int depth;
+        protected string key;
 
+        public string Key { get => key; set => key = value; }
         public string Path { get => path; }
         public string Name { get => name; }
         public int Depth { get => depth; }
@@ -46,6 +48,10 @@ namespace Manga_Reader
 
             Reset();
             GetDepth();
+        }
+        public Container(Container parent, string path, string key) : this(parent, path)
+        {
+            this.key = key;
         }
 
         protected abstract void Reset();
