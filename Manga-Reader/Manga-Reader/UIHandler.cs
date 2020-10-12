@@ -83,7 +83,7 @@ namespace Manga_Reader
                 menuItem.Click += new EventHandler(renameKey);
                 ((ToolStripDropDownMenu)menuItem.DropDown).ShowImageMargin = false;
 
-                if (key == pw.Keys.Last())
+                if (key == pw.PageBreaker)
                     menuItem.ShortcutKeys = Keys.Control | Keys.R;
 
                 menus.Add(menuItem);

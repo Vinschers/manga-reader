@@ -18,27 +18,29 @@ namespace Manga_Reader
         public Navigator(Container root)
         {
             this.root = root;
-            FindCurrentContainer(root);
+            currentContainer = FindCurrentContainer(root);
         }
 
-        private void FindCurrentContainer(Container start)
+        public static Container FindCurrentContainer(Container start)
         {
+            Container ret = null;
             void FindCurrentContainerRec(Container r)
             {
                 if (r.PageWrapper.Pages.Count() > 0)
                 {
-                    currentContainer = r;
+                    ret = r;
                     return;
                 }
                 foreach (Container container in r.Containers)
                 {
                     FindCurrentContainerRec(container);
-                    if (currentContainer != null)
+                    if (ret != null)
                         return;
                 }
             }
-            currentContainer = null;
+            
             FindCurrentContainerRec(start);
+            return ret;
         }
 
         private void FindNextCurrentContainer()
@@ -52,7 +54,7 @@ namespace Manga_Reader
                     int startIndex = parent.Containers.IndexOf(curr) + 1;
                     for (int i = startIndex; i < parent.Containers.Count(); i++)
                     {
-                        FindCurrentContainer(parent.Containers.ElementAt(i));
+                        currentContainer = FindCurrentContainer(parent.Containers.ElementAt(i));
                         if (currentContainer != null)
                             return;
                     }
@@ -75,7 +77,7 @@ namespace Manga_Reader
                     int startIndex = parent.Containers.IndexOf(curr) - 1;
                     for (int i = startIndex; i >= 0; i--)
                     {
-                        FindCurrentContainer(parent.Containers.ElementAt(i));
+                        currentContainer = FindCurrentContainer(parent.Containers.ElementAt(i));
                         if (currentContainer != null)
                         {
                             SetPage(parent.Containers.ElementAt(i), - 1);
@@ -174,7 +176,7 @@ namespace Manga_Reader
 
         public void ChangeContainer(Container newContainer)
         {
-            FindCurrentContainer(newContainer);
+            currentContainer = FindCurrentContainer(newContainer);
             if (currentContainer == null)
                 throw new Exception("Container not found");
         }
@@ -182,15 +184,6 @@ namespace Manga_Reader
         public int DeletePage()
         {
             return currentContainer.PageWrapper.DeleteCurrentPage();
-        }
-
-        public void RenameKey(string key)
-        {
-            Container cont = currentContainer;
-
-            while (cont.Key != key)
-                cont = cont.Parent;
-            //
         }
     }
 }

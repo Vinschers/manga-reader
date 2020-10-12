@@ -44,6 +44,8 @@ namespace Manga_Reader
                 pageNumber += deltaPages;
             else
                 pageNumber = navigator.GetPageNumber(PageBreaker);
+
+            pathWrapper.UpdateHash(Page.Parent.Path);
         }
         public void ChangeContainer(Container container)
         {
@@ -56,6 +58,8 @@ namespace Manga_Reader
                 pageNumber = navigator.GetPageNumber(PageBreaker);
             else
                 pageNumber = 1;
+
+            pathWrapper.UpdateHash(Page.Parent.Path);
         }
         public void DeleteCurrent()
         {
@@ -64,7 +68,33 @@ namespace Manga_Reader
         }
         public void RenameKey(string key)
         {
-            navigator.RenameKey(key);
+            Container cont = navigator.CurrentContainer;
+
+            int i;
+            for (i = pathWrapper.Depth; cont.Key != key; i--)
+                cont = cont.Parent;
+
+            int indexKey = pathWrapper.Keys.IndexOf(key);
+            int indexPB = pathWrapper.Keys.IndexOf(PageBreaker);
+
+            if (indexKey < indexPB)
+            {
+                void RenameKeyRec(Container current)
+                {
+                    if (current.Key == PageBreaker)
+                    {
+                        pathWrapper.RenameContainer(current, 1);
+                        return;
+                    }
+                    foreach (Container c in current.Containers)
+                        RenameKeyRec(c);
+                }
+                RenameKeyRec(cont);
+            }
+            else if (indexKey == indexPB)
+                pathWrapper.RenameContainer(cont, 1);
+            else
+                pathWrapper.RenameContainer(cont, navigator.GetContainerKey(PageBreaker).CountPagesUntil(cont) + 1);
         }
 
         public string GetConfigs()

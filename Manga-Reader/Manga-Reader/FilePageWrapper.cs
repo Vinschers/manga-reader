@@ -60,7 +60,7 @@ namespace Manga_Reader
                 p = pages.Count() + p;
             currentPage = pages.ElementAt(p);
         }
-        private string BuildNewPageName(string pattern, Hashtable hash, int n, string pageKey)
+        private string BuildNewPageName(string pattern, Hashtable hash, int n, string pageKey, string ext)
         {
             string newName = pattern;
 
@@ -68,22 +68,31 @@ namespace Manga_Reader
                 newName = newName.Replace(key, hash[key].ToString());
 
             newName = newName.Replace(pageKey, n + "");
-            newName = path.Substring(0, path.LastIndexOf("\\") + 1) + newName + path.Substring(path.LastIndexOf("."));
+            newName = path + "\\" + newName + ext;
 
             return newName;
         }
         public int RenamePages(string pattern, Hashtable hash, int n, string pageKey)
         {
+            if (pages.Count() == 0)
+                return 0;
             int count = 0;
             int currentIndex = pages.IndexOf(currentPage);
 
             foreach (FilePage page in pages)
             {
-                page.Rename(BuildNewPageName(pattern, hash, n++, pageKey));
+                page.Rename(BuildNewPageName(pattern, hash, n++, pageKey, System.IO.Path.GetExtension(page.Path)));
                 count++;
             }
             GetPages();
-            currentPage = pages.ElementAt(currentIndex);
+            try
+            {
+                currentPage = pages.ElementAt(currentIndex);
+            }
+            catch
+            {
+                currentPage = pages.ElementAt(0);
+            }
 
             return count;
         }

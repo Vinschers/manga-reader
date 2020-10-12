@@ -64,15 +64,15 @@ namespace Manga_Reader
             return n;
         }
 
-        public int CountPagesUntil(string name)
+        public int CountPagesUntil(Container end)
         {
-            if (Name == name)
+            if (Equals(end))
                 return 0;
 
             int n = 0;
             foreach (Container container in containers)
             {
-                if (container.Name == name)
+                if (container.Equals(end))
                     break;
                 n += container.PagesCount(0);
             }

@@ -154,5 +154,19 @@ namespace Manga_Reader
 
             UpdateContainerKeysRec(root as FileContainer, 0);
         }
+
+        public override void RenameContainer(Container cont, int start)
+        {
+            Container innerContainer = Navigator.FindCurrentContainer(cont);
+            Hashtable hash = GetHash(innerContainer.Path);
+
+            start += (cont.PageWrapper as FilePageWrapper).RenamePages(template, hash, start, PAGE_KEY);
+
+            foreach(Container c in cont.Containers)
+            {
+                RenameContainer(c, start);
+                start += c.PagesCount(0);
+            }
+        }
     }
 }

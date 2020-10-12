@@ -32,6 +32,7 @@ namespace Manga_Reader
             }
         }
         public List<string> Keys { get => hashKeys; }
+        public Hashtable Hash { get => hash; }
         public string PageBreaker { get => pageBreaker; set => SetPageBreaker(value); }
 
         public PathWrapper()
@@ -118,12 +119,14 @@ namespace Manga_Reader
         public abstract void SetRenameTemplate(string t);
         public abstract void SetPageBreaker(string pBreak);
         public abstract void UpdateContainerKeys();
-        protected void UpdateHash(string path)
+        public abstract void RenameContainer(Container cont, int start);
+        protected Hashtable GetHash(string path)
         {
             if (!CheckOrganizationMatch(path))
                 throw new Exception("Structure given does not match actual folder structure");
 
-            this.hashKeys = new List<string>();
+            List<string> hashKeys = new List<string>();
+            Hashtable hash = new Hashtable();
 
             var orgParts = organization.Split('\\');
             if (orgParts[orgParts.Length - 1] != "")
@@ -205,6 +208,26 @@ namespace Manga_Reader
                     hashKeys.Add(keys[k]);
                 }
             }
+
+            return hash;
+        }
+        protected List<string> GetKeys(Hashtable hash)
+        {
+            var parts = organization.Split('\\').ToList();
+            var orgParts = new List<string>();
+            foreach (var part in parts)
+                orgParts.AddRange(part.Split(' ').ToList().FindAll(p => p.Contains("$")));
+
+            var keys = new List<string>();
+            foreach (string key in hash.Keys)
+                keys.Add(key);
+
+            return orgParts.Intersect(keys).ToList();
+        }
+        public void UpdateHash(string path)
+        {
+            hash = GetHash(path);
+            hashKeys = GetKeys(hash);
             UpdateContainerKeys();
         }
     }
