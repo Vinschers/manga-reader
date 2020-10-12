@@ -1,68 +1,35 @@
 ﻿using System.Collections;
+using System.Drawing;
 using System.IO;
 
 namespace Manga_Reader
 {
-    public class Page : IFile
+    public abstract class Page
     {
-        string name;
-        string path;
-        Container parent;
-        public IFolder Parent { get => parent; }
-        public Page(string path)
-        {
-            this.path = path;
-            name = path.Substring(path.LastIndexOf("\\") + 1, path.LastIndexOf(".") - path.LastIndexOf("\\") - 1);
-        }
+        protected string name;
+        protected Image image;
+        protected Container parent;
+        public Container Parent { get => parent; }
 
         public string Name { get => name; set => name = value; }
-        public string Path { get => path; set => path = value; }
+        public Image Img { get => image; }
 
-        /*public bool Rename(string newName, Hashtable hash, int n, string pageKey)
+        public abstract Image GetImage();
+
+        public override bool Equals(object obj)
         {
-            foreach (string key in hash.Keys)
-                newName = newName.Replace(key, hash[key].ToString());
-            newName = newName.Replace(pageKey, n + "");
-            newName = path.Substring(0, path.LastIndexOf("\\") + 1) + newName + path.Substring(path.LastIndexOf("."));
-            if (newName != path)
-            {
-                File.Move(path, newName);
-                path = newName;
-                name = path.Substring(path.LastIndexOf("\\") + 1, path.LastIndexOf(".") - path.LastIndexOf("\\") - 1);
-            }
+            if (!(obj is Page))
+                return false;
+            Page p = (Page)obj;
+
+            if (p.name != name)
+                return false;
+            if (p.image != image)
+                return false;
+            if (p.parent != parent)
+                return false;
+
             return true;
-        }*/
-
-        public bool Rename(string newName)
-        {
-            try
-            {
-                if (newName != path)
-                {
-                    File.Move(path, newName);
-                    path = newName;
-                    name = path.Substring(path.LastIndexOf("\\") + 1, path.LastIndexOf(".") - path.LastIndexOf("\\") - 1);
-                }
-                return true;
-
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        public bool Delete()
-        {
-            try
-            {
-                File.Delete(path);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
         }
     }
 }
