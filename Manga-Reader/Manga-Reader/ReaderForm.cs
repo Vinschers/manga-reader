@@ -18,7 +18,7 @@ namespace Manga_Reader
         UIHandler uiHandler;
         Reader reader;
 
-        public frmMangaReader()
+        public frmMangaReader(Reader reader)
         {
             InitializeComponent();
 
@@ -26,12 +26,14 @@ namespace Manga_Reader
                 (container) => { reader.ChangeContainer(container); uiHandler.UpdateLabels(reader.Page.Name, reader.Name); uiHandler.UpdateImage(reader.Page.Image); });
 
             SetupShortcuts();
+
+            this.reader = reader;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
             WindowState = FormWindowState.Maximized;
-            string root = GetPreviousRoot();
+            /*string root = GetPreviousRoot();
 
             MessageBox.Show("Choose the folder of the manga.");
 
@@ -56,14 +58,13 @@ namespace Manga_Reader
                 }
             }
 
-            uiHandler.SetupPanel();
-
-            FileContainer rootContainer = new FileContainer(root);
-            reader = new Reader(new Navigator(rootContainer), new FilePathWrapper(rootContainer));
+            
 
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Manga-Reader");
             if (Directory.Exists(path))
-                reader.LoadConfigs(path + "\\configs.txt");
+                reader.PathWrapper.LoadConfigs(path + "\\configs.txt", reader.Page.Parent.Path);
+
+            
 
             var frm2 = new frmSetup(reader.PathWrapper.GeneratePossiblePathOrganization(), reader.PathWrapper.GeneratePossibleRenameTemplate(),
                 reader.PathWrapper.GeneratePossiblePageBreaker(), reader);
@@ -71,7 +72,8 @@ namespace Manga_Reader
 
             if (dialogResult == DialogResult.Cancel)
                 Application.Exit();
-
+            */
+            uiHandler.SetupPanel();
             uiHandler.UpdateLabels(reader.Page.Name, reader.Name);
 
             uiHandler.SetupRenameMenu(reader.PathWrapper, RenameKey);
@@ -120,13 +122,13 @@ namespace Manga_Reader
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Manga-Reader");
             Directory.CreateDirectory(path);
 
-            var sw = new StreamWriter(path + "\\configs.txt");
+            /*var sw = new StreamWriter(path + "\\configs.txt");
             sw.Write(reader.GetConfigs());
             sw.Close();
 
             sw = new StreamWriter(path + "\\root.txt");
             sw.Write(reader.Navigator.Root.Path);
-            sw.Close();
+            sw.Close();*/
         }
 
         private string GetPreviousRoot()

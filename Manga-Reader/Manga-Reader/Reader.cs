@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace Manga_Reader
 {
-    class Reader
+    public class Reader
     {
         protected Navigator navigator;
         protected PathWrapper pathWrapper;
@@ -96,24 +96,11 @@ namespace Manga_Reader
             else
                 pathWrapper.RenameContainer(cont, navigator.GetContainerKey(PageBreaker).CountPagesUntil(cont) + 1);
         }
-
-        public string GetConfigs()
+        public string ToFile()
         {
             string ret = "";
-            ret += pathWrapper.Organization + "\n";
-            ret += pathWrapper.Template + "\n";
-            ret += pathWrapper.PageBreaker + "\n";
+            ret += pathWrapper.GetConfigs();
             return ret;
-        }
-        public void LoadConfigs(string path)
-        {
-            StreamReader sr = new StreamReader(path);
-
-            pathWrapper.SetPathOrganization(sr.ReadLine(), Page.Parent.Path);
-            pathWrapper.SetRenameTemplate(sr.ReadLine());
-            pathWrapper.SetPageBreaker(sr.ReadLine());
-
-            sr.Close();
         }
     }
 }

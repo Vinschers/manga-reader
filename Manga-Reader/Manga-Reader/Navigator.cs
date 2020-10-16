@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Manga_Reader
 {
-    class Navigator
+    public class Navigator
     {
         protected Container root;
         protected Container currentContainer;

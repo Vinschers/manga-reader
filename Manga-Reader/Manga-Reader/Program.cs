@@ -16,7 +16,7 @@ namespace Manga_Reader
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new frmMangaReader());
+            Application.Run(new frmLibrary());
         }
     }
 }

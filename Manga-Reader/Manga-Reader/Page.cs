@@ -8,7 +8,6 @@ namespace Manga_Reader
     public abstract class Page
     {
         protected string name;
-        protected Image image;
         protected PageWrapper parent;
         public PageWrapper Parent { get => parent; }
 
@@ -24,8 +23,6 @@ namespace Manga_Reader
             Page p = (Page)obj;
 
             if (p.name != name)
-                return false;
-            if (p.image != image)
                 return false;
             if (p.parent != parent)
                 return false;

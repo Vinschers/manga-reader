@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Manga_Reader
 {
-    abstract class PathWrapper
+    public abstract class PathWrapper
     {
         protected Container root;
         protected string organization, template, pageBreaker, defaultRenameKey;
         protected Hashtable hash;
         protected List<string> hashKeys;
+
+        public const char FILE_SEPARATOR = ';';
 
         public int Depth { get => root.Depth; }
         public string Organization { get => organization; }
@@ -229,6 +232,22 @@ namespace Manga_Reader
             hash = GetHash(path);
             hashKeys = GetKeys(hash);
             UpdateContainerKeys();
+        }
+
+        public string GetConfigs()
+        {
+            string ret = "";
+            ret += organization + FILE_SEPARATOR;
+            ret += template + FILE_SEPARATOR;
+            ret += pageBreaker + FILE_SEPARATOR;
+            return ret;
+        }
+        public void LoadConfigs(string configs, string relativePath)
+        {
+            string[] parts = configs.Split(FILE_SEPARATOR);
+            SetPathOrganization(parts[0], relativePath);
+            SetRenameTemplate(parts[1]);
+            SetPageBreaker(parts[2]);
         }
     }
 }
