@@ -53,18 +53,22 @@ namespace Manga_Reader
         void MouseLeave(object sender, EventArgs e)
         {
             container.BackColor = main;
-            Scale(new SizeF(1 - ZOOM, 1 - ZOOM));
+            Left = (int)(Left + Width / (ZOOM * 2));
+            Scale(new SizeF(1/(1 + ZOOM), 1/(1 + ZOOM)));
         }
 
         void MouseEntered(object sender, EventArgs e)
         {
             container.BackColor = hover;
+            Left = (int)(Left - Width * ZOOM/2);
             Scale(new SizeF(1 + ZOOM, 1 + ZOOM));
         }
 
         private void TitleHolder_ParentChanged(object sender, EventArgs e)
         {
-            Width = Parent.Width - 6;
+            if (Parent == null)
+                return;
+            Width = Parent.Width - 10;
         }
 
         private void Click(object sender, EventArgs e)

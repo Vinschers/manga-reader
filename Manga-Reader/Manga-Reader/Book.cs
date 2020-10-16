@@ -17,11 +17,13 @@ namespace Manga_Reader
         protected Reader reader;
 
         public const char FILE_SEPARATOR = '\t';
+        public const string DEFAULT_IMG_PATH = "";
 
         public string Name { get => name; }
         public string Path { get => path; }
         public Image Image { get => GetImage(); }
         public Reader Reader { get => reader; }
+        public DateTime LastOpened { get => lastOpened; }
 
         public Book(string name, string path, string imgPath, DateTime lastOpened)
         {
@@ -44,8 +46,16 @@ namespace Manga_Reader
             this.reader = new Reader(new Navigator(root), new FilePathWrapper(root));
             this.reader.PathWrapper.LoadConfigs(parts[4], reader.Page.Parent.Path);
         }
+        public Book(Navigator navigator, PathWrapper pathWrapper)
+        {
+            this.name = navigator.Root.Name;
+            this.path = navigator.Root.Path;
+            this.imgPath = DEFAULT_IMG_PATH;
+            this.lastOpened = DateTime.Now;
+            this.reader = new Reader(navigator, pathWrapper);
+        }
 
-        public override string ToString()
+        public string ToFile()
         {
             string ret = "";
 
@@ -70,6 +80,10 @@ namespace Manga_Reader
             }
             catch { }
             return image;
+        }
+        public void SetImagePath(string pathImg)
+        {
+            imgPath = pathImg;
         }
     }
 }

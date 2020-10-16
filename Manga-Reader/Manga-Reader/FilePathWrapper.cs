@@ -11,8 +11,6 @@ namespace Manga_Reader
     {
         protected string currentPath;
 
-        public const string PAGE_KEY = "$page";
-
         public string CurrentPath {get => currentPath; set => currentPath = value; }
 
         public FilePathWrapper(Container root) : base(root)
@@ -29,19 +27,19 @@ namespace Manga_Reader
             switch (Depth)
             {
                 case 0:
-                    possiblePathOrganization = "$Chapter\\";
+                    possiblePathOrganization = $"{VAR_CHAR}Chapter\\";
                     break;
 
                 case 1:
-                    possiblePathOrganization = "$Volume\\$Chapter\\";
+                    possiblePathOrganization = $"{VAR_CHAR}Manga\\{VAR_CHAR}Chapter\\";
                     break;
 
                 case 2:
-                    possiblePathOrganization = "$Manga\\Volume $Volume\\$Chapter\\";
+                    possiblePathOrganization = $"{VAR_CHAR}Manga\\Volume {VAR_CHAR}Volume\\{VAR_CHAR}hapter\\";
                     break;
 
                 case 3:
-                    possiblePathOrganization = "$Folder\\$Manga\\$Volume\\$Chapter\\";
+                    possiblePathOrganization = $"{VAR_CHAR}Folder\\{VAR_CHAR}Manga\\{VAR_CHAR}Volume\\{VAR_CHAR}Chapter\\";
                     break;
             }
 
@@ -56,19 +54,19 @@ namespace Manga_Reader
             switch (Depth)
             {
                 case 0:
-                    possibleTemplate = "Chapter $Chapter Page " + PAGE_KEY;
+                    possibleTemplate = $"Chapter {VAR_CHAR}Chapter Page " + PAGE_KEY;
                     break;
 
                 case 1:
-                    possibleTemplate = "Volume $Volume - %Chapter p. " + PAGE_KEY;
+                    possibleTemplate = $"Volume {VAR_CHAR}Volume - {VAR_CHAR}Chapter p. " + PAGE_KEY;
                     break;
 
                 case 2:
-                    possibleTemplate = "$Manga - Volume $Volume Page " + PAGE_KEY;
+                    possibleTemplate = $"{VAR_CHAR}Manga - Volume {VAR_CHAR}Volume Page " + PAGE_KEY;
                     break;
 
                 default:
-                    possibleTemplate = "Volume $Volume - Page " + PAGE_KEY;
+                    possibleTemplate = $"Volume {VAR_CHAR}Volume - Page " + PAGE_KEY;
                     break;
             }
 
@@ -83,15 +81,15 @@ namespace Manga_Reader
             switch (Depth)
             {
                 case 0:
-                    possibleBreaker = "$Chapter";
+                    possibleBreaker = $"{VAR_CHAR}Chapter";
                     break;
 
                 case 2:
-                    possibleBreaker = "$Manga";
+                    possibleBreaker = $"{VAR_CHAR}Manga";
                     break;
 
                 default:
-                    possibleBreaker = "$Volume";
+                    possibleBreaker = $"{VAR_CHAR}Volume";
                     break;
             }
 
@@ -103,8 +101,8 @@ namespace Manga_Reader
                 return;
             var parts = t.Split(' ');
             foreach (var p in parts)
-                if (p.Contains("$"))
-                    if (!hash.Contains(p) && p != "$page")
+                if (p.Contains(VAR_CHAR))
+                    if (!hash.Contains(p) && p != PAGE_KEY)
                         throw new Exception("Unrecognized template!");
             this.template = t;
         }

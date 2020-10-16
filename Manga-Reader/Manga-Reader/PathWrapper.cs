@@ -16,6 +16,8 @@ namespace Manga_Reader
         protected List<string> hashKeys;
 
         public const char FILE_SEPARATOR = ';';
+        public const string VAR_CHAR = "$";
+        public const string PAGE_KEY = VAR_CHAR + "page";
 
         public int Depth { get => root.Depth; }
         public string Organization { get => organization; }
@@ -73,7 +75,7 @@ namespace Manga_Reader
                     char cS = strS[iS];
                     char cP = strP[iP];
 
-                    if (cS == '$')
+                    if (cS == VAR_CHAR[0])
                     {
                         while (cS != ' ' && iS < strS.Length)
                         {
@@ -219,7 +221,7 @@ namespace Manga_Reader
             var parts = organization.Split('\\').ToList();
             var orgParts = new List<string>();
             foreach (var part in parts)
-                orgParts.AddRange(part.Split(' ').ToList().FindAll(p => p.Contains("$")));
+                orgParts.AddRange(part.Split(' ').ToList().FindAll(p => p.Contains(VAR_CHAR)));
 
             var keys = new List<string>();
             foreach (string key in hash.Keys)

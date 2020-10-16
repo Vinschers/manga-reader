@@ -12,24 +12,28 @@ namespace Manga_Reader
 {
     partial class frmSetup : Form
     {
-        Reader reader;
-        public frmSetup(string structure, string template, string counter, Reader r)
+        Book book;
+        public frmSetup(Book book)
         {
             InitializeComponent();
 
-            txtStructure.Text = structure;
-            txtRename.Text = template;
-            txtCounter.Text = counter;
-            reader = r;
+            this.book = book;
+
+            txtName.Text = book.Name;
+            txtPath.Text = book.Path;
+            txtImgPath.Text = "";
+            txtStructure.Text = book.Reader.PathWrapper.GeneratePossiblePathOrganization();
+            txtRename.Text = book.Reader.PathWrapper.GeneratePossibleRenameTemplate();
+            txtCounter.Text = book.Reader.PathWrapper.GeneratePossiblePageBreaker();
         }
 
         private void Btn_Click(object sender, EventArgs e)
         {
             try
             {
-                reader.PathWrapper.SetPathOrganization(txtStructure.Text, reader.Navigator.CurrentContainer.PageWrapper.Path);
-                reader.PathWrapper.SetRenameTemplate(txtRename.Text);
-                reader.PathWrapper.SetPageBreaker(txtCounter.Text);
+                book.Reader.PathWrapper.SetPathOrganization(txtStructure.Text, book.Reader.Navigator.CurrentContainer.PageWrapper.Path);
+                book.Reader.PathWrapper.SetRenameTemplate(txtRename.Text);
+                book.Reader.PathWrapper.SetPageBreaker(txtCounter.Text);
 
                 this.DialogResult = DialogResult.OK;
                 Close();
@@ -54,6 +58,18 @@ namespace Manga_Reader
         private void Form2_Shown(object sender, EventArgs e)
         {
             btn.Focus();
+        }
+
+        private void BtnOpenImgPath_Click(object sender, EventArgs e)
+        {
+            dlgOpen.InitialDirectory = book.Path;
+            dlgOpen.Filter = "All Images Files (*.png;*.jpeg;*.gif;*.jpg;*.bmp;*.tiff;*.tif)|*.png;*.jpeg;*.gif;*.jpg;*.bmp;*.tiff;*.tif";
+            if(dlgOpen.ShowDialog() == DialogResult.OK)
+            {
+                string path = dlgOpen.FileName;
+                this.book.SetImagePath(path);
+                txtImgPath.Text = path;
+            }
         }
     }
 }
