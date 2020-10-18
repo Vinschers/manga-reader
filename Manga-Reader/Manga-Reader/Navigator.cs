@@ -154,29 +154,24 @@ namespace Manga_Reader
         {
             if (n == 0)
                 return;
-
-            var rest = currentContainer.PageWrapper.ChangePage(n);
-
-            if (rest > 0)
+            else if (n > 0)
             {
-                FindNextCurrentContainer();
-                int count = currentContainer.PagesCount(0);
-                if (count > rest)
-                    rest = 0;
-                else
-                    rest -= count;
+                n = currentContainer.PageWrapper.ChangePage(n);
+                while (n > 0)
+                {
+                    FindNextCurrentContainer();
+                    n = currentContainer.PageWrapper.ChangePage(n);
+                }
             }
-            else if (rest < 0)
+            else
             {
-                FindPreviousCurrentContainer();
-                int count = currentContainer.PagesCount(0);
-                if (count > Math.Abs(rest))
-                    rest = 0;
-                else
-                    rest += count;
+                n = currentContainer.PageWrapper.ChangePage(n);
+                while (n < 0)
+                {
+                    FindPreviousCurrentContainer();
+                    n = currentContainer.PageWrapper.ChangePage(n);
+                }
             }
-
-            ChangePage(rest);
         }
 
         public void ChangeContainer(Container newContainer)

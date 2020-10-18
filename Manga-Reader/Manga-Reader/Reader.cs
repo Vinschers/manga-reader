@@ -13,7 +13,7 @@ namespace Manga_Reader
     {
         protected Navigator navigator;
         protected PathWrapper pathWrapper;
-        protected int pageNumber = 0;
+        protected int pageNumber = 1;
 
         public Navigator Navigator { get => navigator; }
         public PathWrapper PathWrapper { get => pathWrapper; }
@@ -22,11 +22,11 @@ namespace Manga_Reader
         public string PageBreaker { get => pathWrapper.PageBreaker; }
         public int PageNumber { get => pageNumber; }
 
-        public Reader(Navigator nav, PathWrapper pw, int pageNumber = 0)
+        public Reader(Navigator nav, PathWrapper pw, int pageNumber = 1)
         {
             navigator = nav;
             pathWrapper = pw;
-            ChangePage(pageNumber);
+            SetPage(pageNumber);
         }
 
         public void CopyToClipboard()
@@ -47,6 +47,13 @@ namespace Manga_Reader
                 pageNumber = navigator.GetPageNumber(PageBreaker);
 
             pathWrapper.UpdateHash(Page.Parent.Path);
+        }
+        public void SetPage(int page)
+        {
+            if (page == pageNumber)
+                return;
+
+            ChangePage(page - pageNumber);
         }
         public void ChangeContainer(Container container)
         {
