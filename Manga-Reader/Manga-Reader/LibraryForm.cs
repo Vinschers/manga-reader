@@ -94,26 +94,9 @@ namespace Manga_Reader
 
             return true;
         }
-        private void AddBooksToPanel()
+        private void AdjustPanel(int width, int height)
         {
-            pnlBooks.Controls.Clear();
-            pnlBooks.AutoScroll = true;
-
-            int height = 0, width = 0, individualHeight = 0;
-
-            foreach (Book book in library.Books)
-            {
-                var th = new TitleHolder(library, book);
-                th.Margin = new Padding(0);
-                th.Location = new Point(50, height);
-                th.Name = book.GetFileName();
-                height += th.Height;
-                width = th.Width;
-                individualHeight = th.Height;
-                pnlBooks.Controls.Add(th);
-            }
-
-            pnlBooks.Size = new Size(width + 50 + SystemInformation.VerticalScrollBarWidth, 3 * individualHeight);
+            pnlBooks.Size = new Size(width, height);
             pnlBooks.Left = (Width - pnlBooks.Width) / 2;
             pnlButtons.Location = new Point(pnlBooks.Width + pnlBooks.Left - pnlButtons.Width, pnlBooks.Height + pnlBooks.Top + 25);
 
@@ -124,8 +107,32 @@ namespace Manga_Reader
 
             Controls.Add(scrollbarHider);
             scrollbarHider.BringToFront();
+        }
+        private void AddBooksToPanel()
+        {
+            pnlBooks.Controls.Clear();
+            pnlBooks.AutoScroll = true;
 
-            pnlBooks.Controls.Cast<TitleHolder>().ToList().First().BringToFront();
+            int height = 0;
+
+            foreach (Book book in library.Books)
+            {
+                var th = new TitleHolder(library, book);
+                th.Margin = new Padding(0);
+                th.Location = new Point(50, height);
+                th.Name = book.GetFileName();
+                height += th.Height;
+                pnlBooks.Controls.Add(th);
+            }
+
+            foreach(Control c in pnlBooks.Controls)
+            {
+                if (c is TitleHolder)
+                {
+                    c.BringToFront();
+                    return;
+                }
+            }
         }
         private void BtnRefresh_Click(object sender, EventArgs e)
         {
@@ -133,6 +140,9 @@ namespace Manga_Reader
 
             if (!IsEqualPanelLibrary())
                 AddBooksToPanel();
+
+            var th = new TitleHolder();
+            AdjustPanel(th.Width + 50 + SystemInformation.VerticalScrollBarWidth, 3 * th.Height);
         }
 
         private void FrmLibrary_MouseEnter(object sender, EventArgs e)
