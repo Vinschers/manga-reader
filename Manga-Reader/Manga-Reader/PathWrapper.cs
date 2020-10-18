@@ -1,18 +1,23 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Manga_Reader
 {
-    abstract class PathWrapper
+    public abstract class PathWrapper
     {
         protected Container root;
         protected string organization, template, pageBreaker, defaultRenameKey;
         protected Hashtable hash;
         protected List<string> hashKeys;
+
+        public const char FILE_SEPARATOR = ';';
+        public const string VAR_CHAR = "$";
+        public const string PAGE_KEY = VAR_CHAR + "page";
 
         public int Depth { get => root.Depth; }
         public string Organization { get => organization; }
@@ -45,6 +50,12 @@ namespace Manga_Reader
         {
             this.root = root;
         }
+        public void Delete()
+        {
+            hashKeys.Clear();
+            hash.Clear();
+            root.Delete();
+        }
         protected abstract string GetRelativePath(string fp);
         protected bool CheckOrganizationMatch(string fp)
         {
@@ -70,7 +81,7 @@ namespace Manga_Reader
                     char cS = strS[iS];
                     char cP = strP[iP];
 
-                    if (cS == '$')
+                    if (cS == VAR_CHAR[0])
                     {
                         while (cS != ' ' && iS < strS.Length)
                         {
@@ -216,7 +227,7 @@ namespace Manga_Reader
             var parts = organization.Split('\\').ToList();
             var orgParts = new List<string>();
             foreach (var part in parts)
-                orgParts.AddRange(part.Split(' ').ToList().FindAll(p => p.Contains("$")));
+                orgParts.AddRange(part.Split(' ').ToList().FindAll(p => p.Contains(VAR_CHAR)));
 
             var keys = new List<string>();
             foreach (string key in hash.Keys)
@@ -229,6 +240,36 @@ namespace Manga_Reader
             hash = GetHash(path);
             hashKeys = GetKeys(hash);
             UpdateContainerKeys();
+        }
+
+        public string GetConfigs()
+        {
+            string ret = "";
+            ret += organization + FILE_SEPARATOR;
+            ret += template + FILE_SEPARATOR;
+            ret += pageBreaker + FILE_SEPARATOR;
+            return ret;
+        }
+        public void LoadConfigs(string configs, string relativePath)
+        {
+            string[] parts = configs.Split(FILE_SEPARATOR);
+            SetPathOrganization(parts[0], relativePath);
+            SetRenameTemplate(parts[1]);
+            SetPageBreaker(parts[2]);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is PathWrapper))
+                return false;
+            PathWrapper pw = obj as PathWrapper;
+            if (!root.Equals(pw.root))
+                return false;
+            if (organization != pw.organization || template != pw.template || pageBreaker != pw.pageBreaker || defaultRenameKey != pw.defaultRenameKey)
+                return false;
+            if (!hashKeys.SequenceEqual(pw.hashKeys))
+                return false;
+            return true;
         }
     }
 }

@@ -53,11 +53,12 @@ namespace Manga_Reader
 
         protected override Image GetImage()
         {
+            Image image = null;
             using (var bmpTemp = new Bitmap(path))
             {
-                this.image = new Bitmap(bmpTemp);
+                image = new Bitmap(bmpTemp);
             }
-            return this.image;
+            return image;
         }
     }
 }

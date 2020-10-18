@@ -9,23 +9,24 @@ using System.Windows.Forms;
 
 namespace Manga_Reader
 {
-    class Reader
+    public class Reader
     {
         protected Navigator navigator;
         protected PathWrapper pathWrapper;
-        protected int pageNumber = -1;
+        protected int pageNumber = 1;
 
         public Navigator Navigator { get => navigator; }
         public PathWrapper PathWrapper { get => pathWrapper; }
         public string Name { get => navigator.Root.Name; }
         public Page Page { get => navigator.Page; }
         public string PageBreaker { get => pathWrapper.PageBreaker; }
+        public int PageNumber { get => pageNumber; }
 
-        public Reader(Navigator nav, PathWrapper pw)
+        public Reader(Navigator nav, PathWrapper pw, int pageNumber = 1)
         {
             navigator = nav;
             pathWrapper = pw;
-            pageNumber = 0;
+            SetPage(pageNumber);
         }
 
         public void CopyToClipboard()
@@ -46,6 +47,13 @@ namespace Manga_Reader
                 pageNumber = navigator.GetPageNumber(PageBreaker);
 
             pathWrapper.UpdateHash(Page.Parent.Path);
+        }
+        public void SetPage(int page)
+        {
+            if (page == pageNumber)
+                return;
+
+            ChangePage(page - pageNumber);
         }
         public void ChangeContainer(Container container)
         {
@@ -96,24 +104,28 @@ namespace Manga_Reader
             else
                 pathWrapper.RenameContainer(cont, navigator.GetContainerKey(PageBreaker).CountPagesUntil(cont) + 1);
         }
-
-        public string GetConfigs()
+        public string ToFile()
         {
             string ret = "";
-            ret += pathWrapper.Organization + "\n";
-            ret += pathWrapper.Template + "\n";
-            ret += pathWrapper.PageBreaker + "\n";
+            ret += pathWrapper.GetConfigs();
             return ret;
         }
-        public void LoadConfigs(string path)
+
+        public override bool Equals(object obj)
         {
-            StreamReader sr = new StreamReader(path);
-
-            pathWrapper.SetPathOrganization(sr.ReadLine(), Page.Parent.Path);
-            pathWrapper.SetRenameTemplate(sr.ReadLine());
-            pathWrapper.SetPageBreaker(sr.ReadLine());
-
-            sr.Close();
+            if (!(obj is Reader))
+                return false;
+            Reader reader = obj as Reader;
+            if (!navigator.Equals(reader.navigator))
+                return false;
+            if (!pathWrapper.Equals(reader.pathWrapper))
+                return false;
+            return true;
+        }
+        public void Delete()
+        {
+            navigator.Delete();
+            pathWrapper.Delete();
         }
     }
 }

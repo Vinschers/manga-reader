@@ -47,9 +47,9 @@ namespace Manga_Reader
             int currentIndex = pages.IndexOf(currentPage);
 
             if (currentIndex + n >= pages.Count())
-                return currentIndex + n - pages.Count() + 1;
+                return n - (pages.Count() - currentIndex);
             else if (currentIndex + n < 0)
-                return currentIndex + n;
+                return n + currentIndex + 1;
 
             currentPage = pages.ElementAt(currentIndex + n);
             return 0;

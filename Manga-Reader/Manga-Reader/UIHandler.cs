@@ -113,6 +113,7 @@ namespace Manga_Reader
             while (node.Nodes != null && node.Nodes.Count > 0)
                 node = node.Nodes[0];
             treeView.SelectedNode = node;
+            rootNode.EnsureVisible();
         }
 
         public void UpdateSelectedNode(Container cont)

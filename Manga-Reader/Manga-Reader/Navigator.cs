@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Manga_Reader
 {
-    class Navigator
+    public class Navigator
     {
         protected Container root;
         protected Container currentContainer;
@@ -41,6 +41,11 @@ namespace Manga_Reader
             
             FindCurrentContainerRec(start);
             return ret;
+        }
+
+        public void Delete()
+        {
+            root.Delete();
         }
 
         private void FindNextCurrentContainer()
@@ -149,29 +154,24 @@ namespace Manga_Reader
         {
             if (n == 0)
                 return;
-
-            var rest = currentContainer.PageWrapper.ChangePage(n);
-
-            if (rest > 0)
+            else if (n > 0)
             {
-                FindNextCurrentContainer();
-                int count = currentContainer.PagesCount(0);
-                if (count > rest)
-                    rest = 0;
-                else
-                    rest -= count;
+                n = currentContainer.PageWrapper.ChangePage(n);
+                while (n > 0)
+                {
+                    FindNextCurrentContainer();
+                    n = currentContainer.PageWrapper.ChangePage(n);
+                }
             }
-            else if (rest < 0)
+            else
             {
-                FindPreviousCurrentContainer();
-                int count = currentContainer.PagesCount(0);
-                if (count > Math.Abs(rest))
-                    rest = 0;
-                else
-                    rest += count;
+                n = currentContainer.PageWrapper.ChangePage(n);
+                while (n < 0)
+                {
+                    FindPreviousCurrentContainer();
+                    n = currentContainer.PageWrapper.ChangePage(n);
+                }
             }
-
-            ChangePage(rest);
         }
 
         public void ChangeContainer(Container newContainer)
@@ -184,6 +184,16 @@ namespace Manga_Reader
         public int DeletePage()
         {
             return currentContainer.PageWrapper.DeleteCurrentPage();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Navigator))
+                return false;
+            Navigator nav = obj as Navigator;
+            if (!root.Equals(nav.root))
+                return false;
+            return true;
         }
     }
 }

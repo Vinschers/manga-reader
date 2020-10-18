@@ -54,6 +54,15 @@ namespace Manga_Reader
             this.key = key;
         }
 
+        public void Delete()
+        {
+            foreach (Container container in containers)
+                container.Delete();
+
+            containers.Clear();
+            pageWrapper.Delete();
+        }
+
         protected abstract void Reset();
 
         public int PagesCount(int n)
