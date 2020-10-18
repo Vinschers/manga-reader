@@ -13,19 +13,20 @@ namespace Manga_Reader
     {
         protected Navigator navigator;
         protected PathWrapper pathWrapper;
-        protected int pageNumber = -1;
+        protected int pageNumber = 0;
 
         public Navigator Navigator { get => navigator; }
         public PathWrapper PathWrapper { get => pathWrapper; }
         public string Name { get => navigator.Root.Name; }
         public Page Page { get => navigator.Page; }
         public string PageBreaker { get => pathWrapper.PageBreaker; }
+        public int PageNumber { get => pageNumber; }
 
-        public Reader(Navigator nav, PathWrapper pw)
+        public Reader(Navigator nav, PathWrapper pw, int pageNumber = 0)
         {
             navigator = nav;
             pathWrapper = pw;
-            pageNumber = 0;
+            ChangePage(pageNumber);
         }
 
         public void CopyToClipboard()
@@ -101,6 +102,23 @@ namespace Manga_Reader
             string ret = "";
             ret += pathWrapper.GetConfigs();
             return ret;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Reader))
+                return false;
+            Reader reader = obj as Reader;
+            if (!navigator.Equals(reader.navigator))
+                return false;
+            if (!pathWrapper.Equals(reader.pathWrapper))
+                return false;
+            return true;
+        }
+        public void Delete()
+        {
+            navigator.Delete();
+            pathWrapper.Delete();
         }
     }
 }

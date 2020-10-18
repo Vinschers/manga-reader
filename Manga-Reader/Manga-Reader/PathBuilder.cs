@@ -21,7 +21,10 @@ namespace Manga_Reader
 
             txtName.Text = book.Name;
             txtPath.Text = book.Path;
-            txtImgPath.Text = "";
+            if (book.ImagePath == Book.DEFAULT_IMG)
+                txtImgPath.Text = "";
+            else
+                txtImgPath.Text = book.ImagePath;
             txtStructure.Text = book.Reader.PathWrapper.GeneratePossiblePathOrganization();
             txtRename.Text = book.Reader.PathWrapper.GeneratePossibleRenameTemplate();
             txtCounter.Text = book.Reader.PathWrapper.GeneratePossiblePageBreaker();
@@ -31,6 +34,10 @@ namespace Manga_Reader
         {
             try
             {
+                book.Name = txtName.Text;
+                book.Path = txtPath.Text;
+                book.ImagePath = txtImgPath.Text != "" ? txtImgPath.Text : Book.DEFAULT_IMG;
+
                 book.Reader.PathWrapper.SetPathOrganization(txtStructure.Text, book.Reader.Navigator.CurrentContainer.PageWrapper.Path);
                 book.Reader.PathWrapper.SetRenameTemplate(txtRename.Text);
                 book.Reader.PathWrapper.SetPageBreaker(txtCounter.Text);
@@ -67,7 +74,6 @@ namespace Manga_Reader
             if(dlgOpen.ShowDialog() == DialogResult.OK)
             {
                 string path = dlgOpen.FileName;
-                this.book.SetImagePath(path);
                 txtImgPath.Text = path;
             }
         }

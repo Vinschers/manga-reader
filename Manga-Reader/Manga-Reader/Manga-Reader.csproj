@@ -53,6 +53,7 @@
     <Compile Include="FileContainer.cs" />
     <Compile Include="FilePage.cs" />
     <Compile Include="FilePageWrapper.cs" />
+    <Compile Include="Library.cs" />
     <Compile Include="LibraryForm.cs">
       <SubType>Form</SubType>
     </Compile>

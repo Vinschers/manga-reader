@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -13,8 +14,7 @@ namespace Manga_Reader
 {
     public partial class frmLibrary : Form
     {
-        List<Book> books;
-        public const string FILE_NAME = "library.txt";
+        Library library;
         public frmLibrary()
         {
             InitializeComponent();
@@ -24,51 +24,9 @@ namespace Manga_Reader
         {
             this.WindowState = FormWindowState.Maximized;
 
-            GetBooks(GetSaveFilePath());
-
-            pnlBooks.Width = Width * 9/10;
-            pnlBooks.Left = Width * 1 / 10;
-            pnlBooks.Height = Height - 200;
+            library = new Library();
 
             btnRefresh.PerformClick();
-
-            panel.Width = pnlBooks.Width - SystemInformation.VerticalScrollBarWidth;
-            panel.Height = pnlBooks.Height;
-            pnlBooks.Parent = panel;
-
-            pnlButtons.Location = new Point(panel.Width + panel.Left - pnlButtons.Width, panel.Height + panel.Top + 25);
-        }
-
-        private void GetBooks(string path)
-        {
-            books = new List<Book>();
-
-            if (!File.Exists(path))
-                return;
-
-            StreamReader reader = new StreamReader(path);
-
-            while(!reader.EndOfStream)
-                books.Add(new Book(reader.ReadLine()));
-
-            reader.Close();
-
-            books = books.OrderBy(b => b.LastOpened).ToList();
-        }
-
-        private string GetSaveFilePath()
-        {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Manga-Reader") + "\\" + FILE_NAME;
-        }
-
-        private void SaveBookToFile(Book book)
-        {
-            string path = GetSaveFilePath();
-            StreamWriter sw = new StreamWriter(path, append:true);
-
-            sw.WriteLine(book.ToFile());
-
-            sw.Close();
         }
 
         private string SelectRootFolder()
@@ -112,27 +70,74 @@ namespace Manga_Reader
                 return;
 
             FileContainer rootContainer = new FileContainer(root);
-            Book book = new Book(new Navigator(rootContainer), new FilePathWrapper(rootContainer));
+            Book book = new Book(new Navigator(rootContainer), new FilePathWrapper(rootContainer), Library.DEFAULT_PATH);
 
             if (!SetupConfigsBook(book))
                 return;
-            
-            books.Insert(0, book);
-            SaveBookToFile(book);
+
+            library.Add(book);
 
             btnRefresh.PerformClick();
         }
 
-        private void BtnRefresh_Click(object sender, EventArgs e)
+        private bool IsEqualPanelLibrary()
+        {
+            if (pnlBooks.Controls.Count != library.Books.Count)
+                return false;
+
+            var controls = pnlBooks.Controls.Cast<TitleHolder>().ToList();
+            for (int i = 0; i < controls.Count; i++)
+            {
+                if (!controls[i].Book.Equals(library.Books[i]))
+                    return false;
+            }
+
+            return true;
+        }
+        private void AddBooksToPanel()
         {
             pnlBooks.Controls.Clear();
-            foreach (Book book in books)
-            {
-                var th = new TitleHolder(book);
+            pnlBooks.AutoScroll = true;
 
+            int height = 0, width = 0, individualHeight = 0;
+
+            foreach (Book book in library.Books)
+            {
+                var th = new TitleHolder(library, book);
                 th.Margin = new Padding(0);
+                th.Location = new Point(50, height);
+                th.Name = book.GetFileName();
+                height += th.Height;
+                width = th.Width;
+                individualHeight = th.Height;
                 pnlBooks.Controls.Add(th);
             }
+
+            pnlBooks.Size = new Size(width + 50 + SystemInformation.VerticalScrollBarWidth, 3 * individualHeight);
+            pnlBooks.Left = (Width - pnlBooks.Width) / 2;
+            pnlButtons.Location = new Point(pnlBooks.Width + pnlBooks.Left - pnlButtons.Width, pnlBooks.Height + pnlBooks.Top + 25);
+
+            Panel scrollbarHider = new Panel();
+            scrollbarHider.Size = new Size(SystemInformation.VerticalScrollBarWidth, pnlBooks.Height);
+            scrollbarHider.Location = new Point(pnlBooks.Left + pnlBooks.Width - scrollbarHider.Width, pnlBooks.Top);
+            scrollbarHider.BackColor = Color.White;
+
+            Controls.Add(scrollbarHider);
+            scrollbarHider.BringToFront();
+
+            pnlBooks.Controls.Cast<TitleHolder>().ToList().First().BringToFront();
+        }
+        private void BtnRefresh_Click(object sender, EventArgs e)
+        {
+            library.Refresh();
+
+            if (!IsEqualPanelLibrary())
+                AddBooksToPanel();
+        }
+
+        private void FrmLibrary_MouseEnter(object sender, EventArgs e)
+        {
+            btnRefresh.PerformClick();
         }
     }
 }

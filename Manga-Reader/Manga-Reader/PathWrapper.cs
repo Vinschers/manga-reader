@@ -50,6 +50,12 @@ namespace Manga_Reader
         {
             this.root = root;
         }
+        public void Delete()
+        {
+            hashKeys.Clear();
+            hash.Clear();
+            root.Delete();
+        }
         protected abstract string GetRelativePath(string fp);
         protected bool CheckOrganizationMatch(string fp)
         {
@@ -250,6 +256,20 @@ namespace Manga_Reader
             SetPathOrganization(parts[0], relativePath);
             SetRenameTemplate(parts[1]);
             SetPageBreaker(parts[2]);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is PathWrapper))
+                return false;
+            PathWrapper pw = obj as PathWrapper;
+            if (!root.Equals(pw.root))
+                return false;
+            if (organization != pw.organization || template != pw.template || pageBreaker != pw.pageBreaker || defaultRenameKey != pw.defaultRenameKey)
+                return false;
+            if (!hashKeys.SequenceEqual(pw.hashKeys))
+                return false;
+            return true;
         }
     }
 }

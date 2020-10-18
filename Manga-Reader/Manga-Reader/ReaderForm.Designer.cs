@@ -42,6 +42,7 @@
             this.renameDepth3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameDepth4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tvPath = new MyTreeView();
+            this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbPage)).BeginInit();
             this.pnlPage.SuspendLayout();
@@ -63,6 +64,7 @@
             this.settingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.renameToolStripMenuItem,
             this.deleteCurrentPageToolStripMenuItem,
+            this.settingsToolStripMenuItem1,
             this.saveSettingsToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(59, 20);
@@ -155,6 +157,13 @@
             this.tvPath.Size = new System.Drawing.Size(201, 628);
             this.tvPath.TabIndex = 1;
             // 
+            // settingsToolStripMenuItem1
+            // 
+            this.settingsToolStripMenuItem1.Name = "settingsToolStripMenuItem1";
+            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
+            this.settingsToolStripMenuItem1.Text = "Settings";
+            this.settingsToolStripMenuItem1.Click += new System.EventHandler(this.SettingsToolStripMenuItem1_Click);
+            // 
             // frmMangaReader
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -171,6 +180,7 @@
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "frmMangaReader";
             this.Text = "Manga reader";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FrmMangaReader_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMangaReader_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FrmMangaReader_KeyUp);
@@ -199,6 +209,7 @@
         private System.Windows.Forms.ToolStripMenuItem renameDepth3ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem renameDepth4ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteCurrentPageToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
     }
 }
 

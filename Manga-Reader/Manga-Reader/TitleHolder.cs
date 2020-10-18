@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Reflection;
 
 namespace Manga_Reader
 {
@@ -15,18 +16,26 @@ namespace Manga_Reader
         Color main = Color.White, hover = Color.FromArgb(255, 200, 200, 200);
         const float ZOOM = 0.1f;
         Book book;
+        Library library;
+        TranspCtrl transparentCtrl;
+        bool mouseInside;
+        int initialHeight, deltaHeight, initialLeft, deltaLeft, initialTop, deltaTop;
 
-        public TitleHolder(Book book)
+        public Book Book { get => book; }
+
+        public TitleHolder(Library library, Book book)
         {
             InitializeComponent();
 
+            this.DoubleBuffered = true;
+            container.EnableDoubleBuferring();
+            lbName.EnableDoubleBuferring();
+            lbPath.EnableDoubleBuferring();
+
+            SetupEvents();
+
             this.book = book;
-
-            lbName.Text = book.Name;
-            lbPath.Text = book.Path;
-            pbPicture.Image = book.Image;
-
-            BackColor = main;
+            this.library = library;
         }
 
         public TitleHolder()
@@ -34,47 +43,192 @@ namespace Manga_Reader
             InitializeComponent();
         }
 
+        private void SetupEvents()
+        {
+            container.DoubleClick += ClickTitle;
+            lbName.Click += ClickTitle;
+
+            container.MouseEnter += MouseEnterEvent;
+            container.MouseLeave += MouseLeaveTitleEvent;
+            pbPicture.MouseEnter += MouseEnterEvent;
+            pbPicture.MouseLeave += MouseLeaveTitleEvent;
+            lbName.MouseEnter += MouseEnterEvent;
+            lbName.MouseLeave += MouseLeaveTitleEvent;
+        }
+
         private void TitleHolder_Load(object sender, EventArgs e)
         {
-            container.BackColor = main;
+            lbName.Text = book.Name;
+            lbPath.Text = book.Path;
+            lbLastOpened.Text += book.LastOpened.ToLongDateString();
+            pbPicture.Image = book.Image;
 
-            var transparentControl = new TranspCtrl();
-            transparentControl.Size = container.Size;
+            lbName.BackColor = Color.Transparent;
+            lbPath.BackColor = Color.Transparent;
+            container.BackColor = Color.Transparent;
+            lbLastOpened.BackColor = Color.Transparent;
 
-            transparentControl.MouseEnter += MouseEntered;
-            transparentControl.MouseLeave += MouseLeave;
-            transparentControl.Click += Click;
+            initialHeight = Height;
+            initialLeft = Location.X;
+            initialTop = Location.Y;
 
-            transparentControl.Parent = container;
-            transparentControl.BringToFront();
-
+            ChangeColor(main);
         }
 
-        void MouseLeave(object sender, EventArgs e)
+        private void Expand()
         {
-            container.BackColor = main;
-            Left = (int)(Left + Width / (ZOOM * 2));
-            Scale(new SizeF(1/(1 + ZOOM), 1/(1 + ZOOM)));
-        }
+            SizeF scaleSize = new SizeF(1 + ZOOM, 1 + ZOOM);
+            container.Scale(scaleSize);
 
-        void MouseEntered(object sender, EventArgs e)
-        {
-            container.BackColor = hover;
-            Left = (int)(Left - Width * ZOOM/2);
-            Scale(new SizeF(1 + ZOOM, 1 + ZOOM));
-        }
+            Location = new Point((int)(initialLeft - Width * ZOOM / 2), Math.Max((int)(initialTop - Height * ZOOM / 2), 0));
+            Height = Math.Min((int)(Height * scaleSize.Height), Parent.Height);
 
-        private void TitleHolder_ParentChanged(object sender, EventArgs e)
+            deltaLeft = Location.X - initialLeft;
+            deltaTop = Location.Y - initialTop;
+            deltaHeight = Height - initialHeight;
+
+            var parentChildren = new List<TitleHolder>();
+            foreach (Control c in Parent.Controls)
+            {
+                if (c is TitleHolder)
+                    parentChildren.Add(c as TitleHolder);
+            }
+
+            try
+            {
+                var nextElem = parentChildren.ElementAt(parentChildren.IndexOf(this) + 1);
+                nextElem.Location = new Point(nextElem.Location.X, nextElem.Location.Y + deltaHeight + deltaTop);
+            }
+            catch { }
+            try
+            {
+                var previousElem = parentChildren.ElementAt(parentChildren.IndexOf(this) - 1);
+                previousElem.Location = new Point(previousElem.Location.X, previousElem.Location.Y + deltaTop);
+            }
+            catch { }
+        }
+        private void Retreat()
         {
-            if (Parent == null)
+            container.Scale(new SizeF(1 / (1 + ZOOM), 1 / (1 + ZOOM)));
+            Height = initialHeight;
+            Location = new Point(initialLeft, initialTop);
+
+            var parentChildren = new List<TitleHolder>();
+            foreach (Control c in Parent.Controls)
+            {
+                if (c is TitleHolder)
+                    parentChildren.Add(c as TitleHolder);
+            }
+
+            try
+            {
+                var nextElem = parentChildren.ElementAt(parentChildren.IndexOf(this) + 1);
+                nextElem.Location = new Point(nextElem.Location.X, nextElem.Location.Y - deltaHeight - deltaTop);
+            }
+            catch { }
+            try
+            {
+                var previousElem = parentChildren.ElementAt(parentChildren.IndexOf(this) - 1);
+                previousElem.Location = new Point(previousElem.Location.X, previousElem.Location.Y - deltaTop);
+            }
+            catch { }
+        }
+        void MouseLeaveTitleEvent(object sender, EventArgs e)
+        {
+            MouseLeave();
+        }
+        void MouseLeave()
+        {
+            if (this.ClientRectangle.Contains(PointToClient(Control.MousePosition)))
                 return;
-            Width = Parent.Width - 10;
+
+            ChangeColor(main);
+            Retreat();
+
+            btnDelete.Visible = !mouseInside;
+            btnEdit.Visible = !mouseInside;
+
+            mouseInside = false;
         }
 
-        private void Click(object sender, EventArgs e)
+        void MouseEnterEvent(object sender, EventArgs e)
         {
-            var frmReader = new frmMangaReader(book.Reader);
+            MouseEntered();
+        }
+        void MouseEntered()
+        {
+            if (mouseInside)
+                return;
+
+            UnselectRest();
+            ChangeColor(hover);
+            Expand();
+
+            btnDelete.Visible = !mouseInside;
+            btnEdit.Visible = !mouseInside;
+
+            mouseInside = true;
+        }
+
+        private void UnselectRest()
+        {
+            foreach (Control c in Parent.Controls)
+            {
+                if (c is TitleHolder)
+                {
+                    var th = c as TitleHolder;
+                    th.ChangeColor(main);
+
+                    if (th.Height != th.initialHeight)
+                        th.Retreat();
+                }
+            }
+        }
+
+        private void ChangeColor(Color c)
+        {
+            BackColor = c;
+        }
+
+        private void BtnEdit_Click(object sender, EventArgs e)
+        {
+            new frmSetup(book).ShowDialog();
+            book.SaveToFile();
+            library.Refresh();
+
+            lbName.Text = book.Name;
+            lbPath.Text = book.Path;
+            lbLastOpened.Text += book.LastOpened.ToLongDateString();
+            pbPicture.Image = book.Image;
+        }
+
+        private void BtnDelete_Click(object sender, EventArgs e)
+        {
+            if (!ConfirmDeletion())
+                return;
+
+            library.Delete(book);
+            book.Delete();
+
+            library.Refresh();
+        }
+
+        private bool ConfirmDeletion()
+        {
+            DialogResult result = MessageBox.Show("This operation is irreversible. Continue?", "Deletion", MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
+            return result == DialogResult.OK;
+        }
+
+        private void ClickTitle(object sender, EventArgs e)
+        {
+            this.book.LastOpened = DateTime.Now;
+            var frmReader = new frmMangaReader(book);
             frmReader.ShowDialog();
+        }
+
+        public override string ToString()
+        {
+            return book.ToString();
         }
     }
 
@@ -98,7 +252,16 @@ namespace Manga_Reader
         }
     }
 
-    class ColorChanger
+    public static class Extensions
+    {
+        public static void EnableDoubleBuferring(this Control control)
+        {
+            var property = typeof(Control).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+            property.SetValue(control, true, null);
+        }
+    }
+
+    /*class ColorChanger
     {
         System.Windows.Forms.Timer timer;
         UserControl component;
@@ -135,5 +298,5 @@ namespace Manga_Reader
                 Thread.Sleep(1);
             }
         }
-    }
+    }*/
 }

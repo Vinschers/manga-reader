@@ -43,6 +43,11 @@ namespace Manga_Reader
             return ret;
         }
 
+        public void Delete()
+        {
+            root.Delete();
+        }
+
         private void FindNextCurrentContainer()
         {
             try
@@ -184,6 +189,16 @@ namespace Manga_Reader
         public int DeletePage()
         {
             return currentContainer.PageWrapper.DeleteCurrentPage();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Navigator))
+                return false;
+            Navigator nav = obj as Navigator;
+            if (!root.Equals(nav.root))
+                return false;
+            return true;
         }
     }
 }

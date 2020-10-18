@@ -28,32 +28,12 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.pnlBooks = new System.Windows.Forms.FlowLayoutPanel();
-            this.panel = new System.Windows.Forms.Panel();
             this.btnAdd = new System.Windows.Forms.Button();
             this.pnlButtons = new System.Windows.Forms.Panel();
             this.btnRefresh = new System.Windows.Forms.Button();
-            this.panel.SuspendLayout();
+            this.pnlBooks = new System.Windows.Forms.Panel();
             this.pnlButtons.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // pnlBooks
-            // 
-            this.pnlBooks.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlBooks.AutoScroll = true;
-            this.pnlBooks.Location = new System.Drawing.Point(0, 0);
-            this.pnlBooks.Name = "pnlBooks";
-            this.pnlBooks.Size = new System.Drawing.Size(1050, 315);
-            this.pnlBooks.TabIndex = 0;
-            // 
-            // panel
-            // 
-            this.panel.Controls.Add(this.pnlBooks);
-            this.panel.Location = new System.Drawing.Point(12, 5);
-            this.panel.Name = "panel";
-            this.panel.Size = new System.Drawing.Size(1042, 364);
-            this.panel.TabIndex = 1;
             // 
             // btnAdd
             // 
@@ -88,29 +68,34 @@
             this.btnRefresh.UseVisualStyleBackColor = true;
             this.btnRefresh.Click += new System.EventHandler(this.BtnRefresh_Click);
             // 
+            // pnlBooks
+            // 
+            this.pnlBooks.Location = new System.Drawing.Point(13, 13);
+            this.pnlBooks.Name = "pnlBooks";
+            this.pnlBooks.Size = new System.Drawing.Size(200, 100);
+            this.pnlBooks.TabIndex = 4;
+            // 
             // frmLibrary
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1139, 511);
+            this.Controls.Add(this.pnlBooks);
             this.Controls.Add(this.pnlButtons);
-            this.Controls.Add(this.panel);
             this.Name = "frmLibrary";
             this.Text = "Library";
             this.Load += new System.EventHandler(this.FrmLibrary_Load);
-            this.panel.ResumeLayout(false);
+            this.MouseEnter += new System.EventHandler(this.FrmLibrary_MouseEnter);
             this.pnlButtons.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
-        private System.Windows.Forms.FlowLayoutPanel pnlBooks;
-        private System.Windows.Forms.Panel panel;
         private System.Windows.Forms.Button btnAdd;
         private System.Windows.Forms.Panel pnlButtons;
         private System.Windows.Forms.Button btnRefresh;
+        private System.Windows.Forms.Panel pnlBooks;
     }
 }

@@ -35,7 +35,7 @@ namespace Manga_Reader
                     break;
 
                 case 2:
-                    possiblePathOrganization = $"{VAR_CHAR}Manga\\Volume {VAR_CHAR}Volume\\{VAR_CHAR}hapter\\";
+                    possiblePathOrganization = $"{VAR_CHAR}Manga\\Volume {VAR_CHAR}Volume\\{VAR_CHAR}Chapter\\";
                     break;
 
                 case 3:
@@ -62,11 +62,11 @@ namespace Manga_Reader
                     break;
 
                 case 2:
-                    possibleTemplate = $"{VAR_CHAR}Manga - Volume {VAR_CHAR}Volume Page " + PAGE_KEY;
+                    possibleTemplate = $"{VAR_CHAR}Manga - Volume {VAR_CHAR}Volume page " + PAGE_KEY;
                     break;
 
                 default:
-                    possibleTemplate = $"Volume {VAR_CHAR}Volume - Page " + PAGE_KEY;
+                    possibleTemplate = $"Volume {VAR_CHAR}Volume - page " + PAGE_KEY;
                     break;
             }
 
@@ -84,7 +84,7 @@ namespace Manga_Reader
                     possibleBreaker = $"{VAR_CHAR}Chapter";
                     break;
 
-                case 2:
+                case 1:
                     possibleBreaker = $"{VAR_CHAR}Manga";
                     break;
 
