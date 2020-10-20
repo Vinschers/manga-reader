@@ -32,6 +32,7 @@
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteCurrentPageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.saveSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pbPage = new System.Windows.Forms.PictureBox();
             this.pnlPage = new System.Windows.Forms.Panel();
@@ -42,7 +43,6 @@
             this.renameDepth3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameDepth4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tvPath = new MyTreeView();
-            this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbPage)).BeginInit();
             this.pnlPage.SuspendLayout();
@@ -73,20 +73,27 @@
             // renameToolStripMenuItem
             // 
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.renameToolStripMenuItem.Text = "Rename";
             // 
             // deleteCurrentPageToolStripMenuItem
             // 
             this.deleteCurrentPageToolStripMenuItem.Name = "deleteCurrentPageToolStripMenuItem";
-            this.deleteCurrentPageToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.deleteCurrentPageToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.deleteCurrentPageToolStripMenuItem.Text = "Delete current page";
             this.deleteCurrentPageToolStripMenuItem.Click += new System.EventHandler(this.DeleteCurrentPageToolStripMenuItem_Click);
+            // 
+            // settingsToolStripMenuItem1
+            // 
+            this.settingsToolStripMenuItem1.Name = "settingsToolStripMenuItem1";
+            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(177, 22);
+            this.settingsToolStripMenuItem1.Text = "Settings";
+            this.settingsToolStripMenuItem1.Click += new System.EventHandler(this.SettingsToolStripMenuItem1_Click);
             // 
             // saveSettingsToolStripMenuItem
             // 
             this.saveSettingsToolStripMenuItem.Name = "saveSettingsToolStripMenuItem";
-            this.saveSettingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveSettingsToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.saveSettingsToolStripMenuItem.Text = "Save settings";
             this.saveSettingsToolStripMenuItem.Click += new System.EventHandler(this.SaveSettingsToolStripMenuItem_Click);
             // 
@@ -98,6 +105,7 @@
             this.pbPage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbPage.TabIndex = 2;
             this.pbPage.TabStop = false;
+            this.pbPage.MouseClick += new System.Windows.Forms.MouseEventHandler(this.FrmMangaReader_MouseClick);
             // 
             // pnlPage
             // 
@@ -107,6 +115,7 @@
             this.pnlPage.Name = "pnlPage";
             this.pnlPage.Size = new System.Drawing.Size(200, 100);
             this.pnlPage.TabIndex = 3;
+            this.pnlPage.MouseClick += new System.Windows.Forms.MouseEventHandler(this.FrmMangaReader_MouseClick);
             // 
             // lblManga
             // 
@@ -157,13 +166,6 @@
             this.tvPath.Size = new System.Drawing.Size(201, 628);
             this.tvPath.TabIndex = 1;
             // 
-            // settingsToolStripMenuItem1
-            // 
-            this.settingsToolStripMenuItem1.Name = "settingsToolStripMenuItem1";
-            this.settingsToolStripMenuItem1.Size = new System.Drawing.Size(180, 22);
-            this.settingsToolStripMenuItem1.Text = "Settings";
-            this.settingsToolStripMenuItem1.Click += new System.EventHandler(this.SettingsToolStripMenuItem1_Click);
-            // 
             // frmMangaReader
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -184,6 +186,7 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmMangaReader_KeyDown);
             this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FrmMangaReader_KeyUp);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.FrmMangaReader_MouseClick);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbPage)).EndInit();

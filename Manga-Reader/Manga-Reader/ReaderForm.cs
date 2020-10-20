@@ -102,5 +102,21 @@ namespace Manga_Reader
         {
             book.SaveToFile();
         }
+
+        private void FrmMangaReader_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                book.Reader.ChangePage(1);
+                uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                book.Reader.ChangePage(-1);
+                uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
+            }
+            uiHandler.UpdateImage(book.Reader.Page.Image);
+            uiHandler.UpdateSelectedNode(book.Reader.Navigator.CurrentContainer);
+        }
     }
 }

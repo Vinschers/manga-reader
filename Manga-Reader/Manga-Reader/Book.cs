@@ -58,7 +58,7 @@ namespace Manga_Reader
             Container root = new FileContainer(path);
             PathWrapper pw = new FilePathWrapper(root);
             Navigator nav = new Navigator(root);
-            pw.LoadConfigs(parts[5], nav.Page.Parent.Path);
+            pw.LoadConfigs(parts[5], nav.GetDeepestContainer().Path);
             this.reader = new Reader(nav, pw, page);
 
             saveDirectory = file.Substring(0, file.LastIndexOf("\\")) + "\\";

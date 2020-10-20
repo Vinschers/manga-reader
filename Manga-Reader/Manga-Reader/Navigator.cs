@@ -195,5 +195,18 @@ namespace Manga_Reader
                 return false;
             return true;
         }
+        public Container GetDeepestContainer()
+        {
+            int depth = root.Depth;
+            Container cont = root;
+
+            while(depth != 0)
+            {
+                cont = cont.Containers.OrderBy(c => c.Depth).Last();
+                depth = cont.Depth;
+            }
+
+            return cont;
+        }
     }
 }
