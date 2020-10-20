@@ -26,14 +26,13 @@ namespace Manga_Reader
             WindowState = FormWindowState.Maximized;
 
             uiHandler.SetupPanel();
-            uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
 
             uiHandler.SetupRenameMenu(book.Reader.PathWrapper, RenameKey);
             uiHandler.SetupTreeView(book.Reader.Navigator.Root);
 
             book.Reader.PathWrapper.DefaultRenameKey = book.Reader.PathWrapper.Keys.Last();
 
-            uiHandler.UpdateImage(book.Reader.Page.Image);
+            RefreshUI();
         }
 
         private void SetupShortcuts()
@@ -47,16 +46,12 @@ namespace Manga_Reader
             {
                 if (e.KeyCode == Keys.Right)
                 {
-                    book.Reader.ChangePage(1);
-                    uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
+                    AdvancePage();
                 }
                 else if (e.KeyCode == Keys.Left)
                 {
-                    book.Reader.ChangePage(-1);
-                    uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
+                    RetreatPage();
                 }
-                uiHandler.UpdateImage(book.Reader.Page.Image);
-                uiHandler.UpdateSelectedNode(book.Reader.Navigator.CurrentContainer);
             }
             catch(Exception ex)
             {
@@ -77,14 +72,13 @@ namespace Manga_Reader
         {
             var key = ((ToolStripMenuItem)sender).Text.Split(' ')[1];
             book.Reader.RenameKey(key);
-            uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
+            RefreshUI();
         }
 
         private void DeleteCurrentPageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             book.Reader.DeleteCurrent();
-            uiHandler.UpdateImage(book.Reader.Page.Image);
-            uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
+            RefreshUI();
         }
 
         private void FrmMangaReader_KeyDown(object sender, KeyEventArgs e)
@@ -107,15 +101,44 @@ namespace Manga_Reader
         {
             if (e.Button == MouseButtons.Left)
             {
-                book.Reader.ChangePage(1);
-                uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
+                AdvancePage();
             }
             else if (e.Button == MouseButtons.Right)
             {
-                book.Reader.ChangePage(-1);
-                uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
+                RetreatPage();
             }
+            
+        }
+
+        private void AdvancePage()
+        {
+            try
+            {
+                book.Reader.ChangePage(1);
+                RefreshUI();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+        private void RetreatPage()
+        {
+            try
+            {
+                book.Reader.ChangePage(-1);
+                RefreshUI();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void RefreshUI()
+        {
             uiHandler.UpdateImage(book.Reader.Page.Image);
+            uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
             uiHandler.UpdateSelectedNode(book.Reader.Navigator.CurrentContainer);
         }
     }
