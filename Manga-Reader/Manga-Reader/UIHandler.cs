@@ -73,14 +73,15 @@ namespace Manga_Reader
         {
             List<ToolStripMenuItem> menus = new List<ToolStripMenuItem>();
             List<ToolStripMenuItem> shortcutsMenu = new List<ToolStripMenuItem>();
-            foreach (string key in pw.Keys)
+            foreach (Key key in pw.Keys)
             {
                 ToolStripMenuItem menuItem = new ToolStripMenuItem();
 
-                menuItem.Name = "renameMenu"+key;
+                menuItem.Name = "renameMenu"+key.StringValue;
                 menuItem.Size = new Size(180, 22);
-                menuItem.Text = "Rename " + key;
+                menuItem.Text = "Rename " + key.StringValue;
                 menuItem.Click += new EventHandler(renameKey);
+                menuItem.Tag = key;
                 ((ToolStripDropDownMenu)menuItem.DropDown).ShowImageMargin = false;
 
                 if (key == pw.PageBreaker)

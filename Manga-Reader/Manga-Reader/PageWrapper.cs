@@ -34,7 +34,7 @@ namespace Manga_Reader
         }
         public abstract void Reset();
         protected abstract void GetPages();
-        public abstract int ChangePage(int n);
+        public abstract void ChangePage(int n);
         public abstract int DeleteCurrentPage();
         public abstract void SetPage(int p);
     }

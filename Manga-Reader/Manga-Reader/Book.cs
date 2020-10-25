@@ -27,6 +27,7 @@ namespace Manga_Reader
         public Reader Reader { get => reader; }
         public DateTime LastOpened { get => lastOpened; set => lastOpened = value; }
         public string ImagePath { get => imgPath; set => imgPath = value; }
+        public string FilePath { get => saveDirectory + GetFileName(); }
 
         public Book(string name, string path, string imgPath, DateTime lastOpened, string saveDirectory)
         {
@@ -58,7 +59,7 @@ namespace Manga_Reader
             Container root = new FileContainer(path);
             PathWrapper pw = new FilePathWrapper(root);
             Navigator nav = new Navigator(root);
-            pw.LoadConfigs(parts[5], nav.GetDeepestContainer().Path);
+            pw.LoadConfigs(parts[5], nav.GetDeepestContainer());
             this.reader = new Reader(nav, pw, page);
 
             saveDirectory = file.Substring(0, file.LastIndexOf("\\")) + "\\";
@@ -73,6 +74,35 @@ namespace Manga_Reader
             this.saveDirectory = saveDirectory.EndsWith("\\") ? saveDirectory : saveDirectory + "\\";
         }
 
+        public void Refresh()
+        {
+            StreamReader sReader = new StreamReader(FilePath);
+
+            string[] parts = sReader.ReadToEnd().Split(FILE_SEPARATOR);
+            sReader.Close();
+
+            name = parts[0];
+            imgPath = parts[2];
+            lastOpened = DateTime.Parse(parts[3]);
+
+            if (parts[1] != path)
+            {
+                path = parts[1];
+
+                int page = 0;
+                try
+                {
+                    page = int.Parse(parts[4]);
+                }
+                catch { }
+
+                Container root = new FileContainer(path);
+                PathWrapper pw = new FilePathWrapper(root);
+                Navigator nav = new Navigator(root);
+                pw.LoadConfigs(parts[5], nav.GetDeepestContainer());
+                this.reader = new Reader(nav, pw, page);
+            }
+        }
         public string ToFile()
         {
             string ret = "";
@@ -81,7 +111,7 @@ namespace Manga_Reader
             ret += path + FILE_SEPARATOR;
             ret += imgPath + FILE_SEPARATOR;
             ret += lastOpened.ToString() + FILE_SEPARATOR;
-            ret += reader.PageNumber.ToString() + FILE_SEPARATOR;
+            ret += reader.GlobalPageNumber.ToString() + FILE_SEPARATOR;
             ret += reader.ToFile() + FILE_SEPARATOR;
 
             return ret;

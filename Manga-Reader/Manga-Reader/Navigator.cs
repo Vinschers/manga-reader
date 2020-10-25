@@ -40,6 +40,7 @@ namespace Manga_Reader
             }
             
             FindCurrentContainerRec(start);
+            ret.PageWrapper.SetPage(1);
             return ret;
         }
 
@@ -53,10 +54,27 @@ namespace Manga_Reader
             try
             {
                 Container curr = currentContainer;
+                if (curr.Containers.Count() > 0)
+                {
+                    do
+                    {
+                        curr = curr.Containers.First();
+                    } while (curr.PageWrapper.Pages.Count() == 0);
+
+                    currentContainer = curr;
+                    return;
+                }
+                
                 while (true)
                 {
+                    while (curr.Parent.Containers.IndexOf(curr) == curr.Parent.Containers.Count() - 1 && curr != null)
+                        curr = curr.Parent;
+                    if (curr == null)
+                        throw new Exception();
+
                     Container parent = curr.Parent;
                     int startIndex = parent.Containers.IndexOf(curr) + 1;
+
                     for (int i = startIndex; i < parent.Containers.Count(); i++)
                     {
                         currentContainer = FindCurrentContainer(parent.Containers.ElementAt(i));
@@ -78,8 +96,25 @@ namespace Manga_Reader
                 Container curr = currentContainer;
                 while (true)
                 {
+                    while (curr != null && curr.Parent != null && curr.Parent.Containers.IndexOf(curr) == 0 && curr.Parent.PageWrapper.Pages.Count() == 0)
+                        curr = curr.Parent;
+                    if (curr == null)
+                        throw new Exception();
+
+                    if (curr.Parent == null)
+                    {
+                        currentContainer = curr;
+                        return;
+                    }
+                    if (curr.Parent.Containers.IndexOf(curr) == 0 && curr.Parent.PageWrapper.Pages.Count() > 0)
+                    {
+                        currentContainer = curr.Parent;
+                        return;
+                    }
+
                     Container parent = curr.Parent;
                     int startIndex = parent.Containers.IndexOf(curr) - 1;
+
                     for (int i = startIndex; i >= 0; i--)
                     {
                         currentContainer = FindCurrentContainer(parent.Containers.ElementAt(i));
@@ -97,21 +132,45 @@ namespace Manga_Reader
                 throw new Exception("Start reached!");
             }
         }
-        public Container GetContainerKey(string key)
+        public Container GetContainerKey(Container start, Key key)
         {
-            Container cont = currentContainer;
+            Container cont = start;
 
-            while (cont.Key != key)
-                cont = cont.Parent;
+            try
+            {
+                while (cont.Key.NumericValue != key.NumericValue)
+                    cont = cont.Parent;
+            }
+            catch (NullReferenceException ex)
+            {
+                cont = null;
+
+                void TestKey(Container current)
+                {
+                    if (current.Key == key)
+                        cont = current;
+                    foreach (Container c in current.Containers)
+                    {
+                        if (cont != null)
+                            return;
+
+                        TestKey(c);
+                    }
+                }
+                TestKey(start);
+            }
 
             return cont;
         }
-        public int GetPageNumber(string key)
+        public int GetPageNumber(Key key)
         {
-            Container cKey = GetContainerKey(key);
+            Container cKey = GetContainerKey(currentContainer, key);
             Container current = currentContainer;
-            int page = current.PageWrapper.Pages.IndexOf(Page) + 1; //start in 1 not 0
 
+            if (cKey.Key.NumericValue <= current.Key.NumericValue)
+                return 0;
+
+            int page = current.PageWrapper.Pages.IndexOf(Page) + 1; //start in 1 not 0
             do
             {
                 var parent = current.Parent;
@@ -129,9 +188,11 @@ namespace Manga_Reader
         public void SetPage(Container root, int n)
         {
             if (n < 0)
-                n = root.PagesCount(0) + n;
+                n = root.PagesCount(0) + n + 1;
+            else
+                n++;
             int counter = root.PageWrapper.Pages.Count();
-            if (counter > n)
+            if (counter >= n)
             {
                 currentContainer = root;
                 currentContainer.PageWrapper.SetPage(n);
@@ -149,28 +210,57 @@ namespace Manga_Reader
                 }
             }
         }
-
         public void ChangePage(int n)
         {
-            if (n == 0)
-                return;
-            else if (n > 0)
+            if (n > 0)
+                AdvancePages(n);
+            else if (n < 0)
+                RetreatPages(Math.Abs(n));
+        }
+
+        private void AdvancePages(int n)
+        {
+            while (n > 0)
             {
-                n = currentContainer.PageWrapper.ChangePage(n);
-                while (n > 0)
+                if (currentContainer.PageWrapper.Pages.Count() > 0)
                 {
-                    FindNextCurrentContainer();
-                    n = currentContainer.PageWrapper.ChangePage(n);
+                    List<Page> curPages = currentContainer.PageWrapper.Pages;
+                    if (curPages.IndexOf(Page) + n < curPages.Count())
+                    {
+                        currentContainer.PageWrapper.ChangePage(n);
+                        return;
+                    }
+
+                    n -= curPages.Count();
                 }
+                
+                if (currentContainer.Containers.Count() > 0)
+                {
+                    currentContainer = currentContainer.Containers.First();
+                    continue;
+                }
+
+                FindNextCurrentContainer();
             }
-            else
+        }
+
+        private void RetreatPages(int n)
+        {
+            while (n > 0)
             {
-                n = currentContainer.PageWrapper.ChangePage(n);
-                while (n < 0)
+                if (currentContainer.PageWrapper.Pages.Count() > 0)
                 {
-                    FindPreviousCurrentContainer();
-                    n = currentContainer.PageWrapper.ChangePage(n);
+                    List<Page> curPages = currentContainer.PageWrapper.Pages;
+                    if (curPages.IndexOf(Page) - n >= 0)
+                    {
+                        currentContainer.PageWrapper.ChangePage(-n);
+                        return;
+                    }
+
+                    n -= curPages.IndexOf(Page) + 1;
                 }
+
+                FindPreviousCurrentContainer();
             }
         }
 

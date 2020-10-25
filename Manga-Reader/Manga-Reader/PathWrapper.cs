@@ -11,9 +11,10 @@ namespace Manga_Reader
     public abstract class PathWrapper
     {
         protected Container root;
-        protected string organization, template, pageBreaker, defaultRenameKey;
+        protected string organization, template;
         protected Hashtable hash;
-        protected List<string> hashKeys;
+        protected List<Key> hashKeys;
+        protected Key pageBreaker, defaultRenameKey;
 
         public const char FILE_SEPARATOR = ';';
         public const string VAR_CHAR = "$";
@@ -22,11 +23,11 @@ namespace Manga_Reader
         public int Depth { get => root.Depth; }
         public string Organization { get => organization; }
         public string Template { get => template; }
-        public string DefaultRenameKey
+        public Key DefaultRenameKey
         {
             get
             {
-                if (defaultRenameKey != null && defaultRenameKey != "")
+                if (defaultRenameKey != null && defaultRenameKey.StringValue != "")
                     return defaultRenameKey;
                 return pageBreaker;
             }
@@ -36,14 +37,14 @@ namespace Manga_Reader
                     defaultRenameKey = value;
             }
         }
-        public List<string> Keys { get => hashKeys; }
+        public List<Key> Keys { get => hashKeys; }
         public Hashtable Hash { get => hash; }
-        public string PageBreaker { get => pageBreaker; set => SetPageBreaker(value); }
+        public Key PageBreaker { get => pageBreaker; set => SetPageBreaker(value); }
 
         public PathWrapper()
         {
             hash = new Hashtable();
-            hashKeys = new List<string>();
+            hashKeys = new List<Key>();
         }
 
         public PathWrapper(Container root) : this()
@@ -69,7 +70,7 @@ namespace Manga_Reader
             var pathParts = GetRelativePath(fp).Split('\\');
             pathParts = pathParts.Skip(Math.Max(0, pathParts.Count() - orgParts.Length)).ToArray();
 
-            for (int i = 0; i < orgParts.Length; ++i)
+            for (int i = 0; i < pathParts.Length; ++i)
             {
                 int lastS = -1;
                 string strS = orgParts[i];
@@ -122,12 +123,15 @@ namespace Manga_Reader
         public abstract string GeneratePossiblePathOrganization();
         public abstract string GeneratePossibleRenameTemplate();
         public abstract string GeneratePossiblePageBreaker();
-        public void SetPathOrganization(string org, string path)
+        public void SetPathOrganization(string org, Container cont)
         {
             this.organization = org;
-            UpdateHash(path);
+            UpdateHash(cont);
+            hashKeys = GetKeys(hash);
+            UpdateContainerKeys();
         }
         public abstract void SetRenameTemplate(string t);
+        protected abstract void SetPageBreaker(Key pBreak);
         public abstract void SetPageBreaker(string pBreak);
         public abstract void UpdateContainerKeys();
         public abstract void RenameContainer(Container cont, int start);
@@ -149,12 +153,12 @@ namespace Manga_Reader
             var pathParts = GetRelativePath(path).Split('\\');
             pathParts = pathParts.Skip(Math.Max(0, pathParts.Count() - orgParts.Length)).ToArray();
 
-            for (int i = 0; i < orgParts.Length; ++i)
+            for (int i = 0; i < pathParts.Length; ++i)
             {
                 string strS = orgParts[i];
                 string strP = pathParts[i];
 
-                if (strS == "")
+                if (strS == "" || strP == "")
                     continue;
 
                 var wordsS = strS.Split(' ').ToList();
@@ -222,7 +226,7 @@ namespace Manga_Reader
 
             return hash;
         }
-        protected List<string> GetKeys(Hashtable hash)
+        protected List<Key> GetKeys(Hashtable hash)
         {
             var parts = organization.Split('\\').ToList();
             var orgParts = new List<string>();
@@ -233,13 +237,17 @@ namespace Manga_Reader
             foreach (string key in hash.Keys)
                 keys.Add(key);
 
-            return orgParts.Intersect(keys).ToList();
+            orgParts = orgParts.Intersect(keys).ToList();
+
+            List<Key> ret = new List<Key>();
+            for (int i = 0; i < orgParts.Count(); i++)
+                ret.Add(new Key { NumericValue= orgParts.Count()-i, StringValue= orgParts[i] });
+
+            return ret;
         }
-        public void UpdateHash(string path)
+        public void UpdateHash(Container cont)
         {
-            hash = GetHash(path);
-            hashKeys = GetKeys(hash);
-            UpdateContainerKeys();
+            hash = GetHash(cont.Path);
         }
 
         public string GetConfigs()
@@ -247,15 +255,15 @@ namespace Manga_Reader
             string ret = "";
             ret += organization + FILE_SEPARATOR;
             ret += template + FILE_SEPARATOR;
-            ret += pageBreaker + FILE_SEPARATOR;
+            ret += pageBreaker.NumericValue + "," + pageBreaker.StringValue + FILE_SEPARATOR;
             return ret;
         }
-        public void LoadConfigs(string configs, string relativePath)
+        public void LoadConfigs(string configs, Container relativeContainer)
         {
             string[] parts = configs.Split(FILE_SEPARATOR);
-            SetPathOrganization(parts[0], relativePath);
+            SetPathOrganization(parts[0], relativeContainer);
             SetRenameTemplate(parts[1]);
-            SetPageBreaker(parts[2]);
+            SetPageBreaker(new Key { NumericValue=int.Parse(parts[2].Split(',')[0]), StringValue=parts[2].Split(',')[1] });
         }
 
         public override bool Equals(object obj)

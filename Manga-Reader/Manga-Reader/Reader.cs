@@ -13,20 +13,21 @@ namespace Manga_Reader
     {
         protected Navigator navigator;
         protected PathWrapper pathWrapper;
-        protected int pageNumber = 1;
+        protected int globalPageNumber = 1, pageNumber = 1;
 
         public Navigator Navigator { get => navigator; }
         public PathWrapper PathWrapper { get => pathWrapper; }
         public string Name { get => navigator.Root.Name; }
         public Page Page { get => navigator.Page; }
-        public string PageBreaker { get => pathWrapper.PageBreaker; }
+        public Key PageBreaker { get => pathWrapper.PageBreaker; }
         public int PageNumber { get => pageNumber; }
+        public int GlobalPageNumber { get => globalPageNumber; }
 
-        public Reader(Navigator nav, PathWrapper pw, int pageNumber = 1)
+        public Reader(Navigator nav, PathWrapper pw, int globalPageNumber = 1)
         {
             navigator = nav;
             pathWrapper = pw;
-            SetPage(pageNumber);
+            SetPage(globalPageNumber);
         }
 
         public void CopyToClipboard()
@@ -36,50 +37,41 @@ namespace Manga_Reader
 
         public void ChangePage(int deltaPages)
         {
-            string pageBreakerValueBefore = navigator.GetContainerKey(PageBreaker).Path;
+            Container previous = navigator.CurrentContainer;
             navigator.ChangePage(deltaPages);
-            Container pageBreakerAfter = navigator.GetContainerKey(PageBreaker);
-            string pageBreakerValueAfter = pageBreakerAfter.Path;
 
-            if (pageBreakerValueBefore == pageBreakerValueAfter)
+            if (navigator.GetContainerKey(previous, pathWrapper.DefaultRenameKey) == navigator.GetContainerKey(navigator.CurrentContainer, pathWrapper.DefaultRenameKey))
                 pageNumber += deltaPages;
             else
                 pageNumber = navigator.GetPageNumber(PageBreaker);
 
-            pathWrapper.UpdateHash(Page.Parent.Path);
+            globalPageNumber += deltaPages;
+            pathWrapper.UpdateHash(Page.Parent.Parent);
         }
         public void SetPage(int page)
         {
-            if (page == pageNumber)
+            if (page == globalPageNumber)
                 return;
 
-            ChangePage(page - pageNumber);
+            ChangePage(page - globalPageNumber);
         }
         public void ChangeContainer(Container container)
         {
-            string pageBreakerValueBefore = navigator.GetContainerKey(PageBreaker).Path;
             navigator.ChangeContainer(container);
-            Container pageBreakerAfter = navigator.GetContainerKey(PageBreaker);
-            string pageBreakerValueAfter = pageBreakerAfter.Path;
 
-            if (pageBreakerValueBefore == pageBreakerValueAfter)
-                pageNumber = navigator.GetPageNumber(PageBreaker);
-            else
-                pageNumber = 1;
-
-            pathWrapper.UpdateHash(Page.Parent.Path);
+            pageNumber = navigator.GetPageNumber(PageBreaker);
+            pathWrapper.UpdateHash(Page.Parent.Parent);
         }
         public void DeleteCurrent()
         {
             int delta = navigator.DeletePage();
             pageNumber += delta;
         }
-        public void RenameKey(string key)
+        public void RenameKey(Key key)
         {
             Container cont = navigator.CurrentContainer;
 
-            int i;
-            for (i = pathWrapper.Depth; cont.Key != key; i--)
+            for (int i = pathWrapper.Depth; cont.Key != key; i--)
                 cont = cont.Parent;
 
             int indexKey = pathWrapper.Keys.IndexOf(key);
@@ -102,7 +94,7 @@ namespace Manga_Reader
             else if (indexKey == indexPB)
                 pathWrapper.RenameContainer(cont, 1);
             else
-                pathWrapper.RenameContainer(cont, navigator.GetContainerKey(PageBreaker).CountPagesUntil(cont) + 1);
+                pathWrapper.RenameContainer(cont, navigator.GetContainerKey(navigator.CurrentContainer, PageBreaker).CountPagesUntil(cont) + 1);
         }
         public string ToFile()
         {

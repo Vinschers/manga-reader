@@ -42,22 +42,23 @@ namespace Manga_Reader
         {
             GetPages();
         }
-        public override int ChangePage(int n)
+        public override void ChangePage(int n)
         {
             int currentIndex = pages.IndexOf(currentPage);
 
             if (currentIndex + n >= pages.Count())
-                return n - (pages.Count() - currentIndex);
+                currentPage = pages.Last();
             else if (currentIndex + n < 0)
-                return n + currentIndex;
-
-            currentPage = pages.ElementAt(currentIndex + n);
-            return 0;
+                currentPage = pages.First();
+            else
+                currentPage = pages.ElementAt(currentIndex + n);
         }
         public override void SetPage(int p)
         {
             if (p < 0)
                 p = pages.Count() + p;
+            else
+                p--;
             currentPage = pages.ElementAt(p);
         }
         private string BuildNewPageName(string pattern, Hashtable hash, int n, string pageKey, string ext)

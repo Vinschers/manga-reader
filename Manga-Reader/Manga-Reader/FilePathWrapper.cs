@@ -74,8 +74,8 @@ namespace Manga_Reader
         }
         public override string GeneratePossiblePageBreaker()
         {
-            if (pageBreaker != null && pageBreaker != "")
-                return pageBreaker;
+            if (pageBreaker != null && pageBreaker.StringValue != "")
+                return pageBreaker.StringValue;
             string possibleBreaker = "";
 
             switch (Depth)
@@ -106,9 +106,9 @@ namespace Manga_Reader
                         throw new Exception("Unrecognized template!");
             this.template = t;
         }
-        public override void SetPageBreaker(string b)
+        protected override void SetPageBreaker(Key b)
         {
-            if (b == "")
+            if (b.StringValue == "")
             {
                 this.pageBreaker = b;
                 return;
@@ -116,7 +116,7 @@ namespace Manga_Reader
             if (b == this.pageBreaker)
                 return;
 
-            var parts = b.Split(' ');
+            var parts = b.StringValue.Split(' ');
             foreach (var p in parts)
             {
                 if (!p.Contains("$"))
@@ -129,7 +129,11 @@ namespace Manga_Reader
             }
             this.pageBreaker = b;
         }
-        
+        public override void SetPageBreaker(string b)
+        {
+            SetPageBreaker(hashKeys.Find(key => key.StringValue == b));
+        }
+
         protected override string GetRelativePath(string fullPath)
         {
             int partsAbsolutePath = currentPath.Split('\\').Length - 1;
@@ -144,10 +148,14 @@ namespace Manga_Reader
         {
             void UpdateContainerKeysRec(FileContainer start, int keyIndex)
             {
-                start.Key = hashKeys[keyIndex];
+                try
+                {
+                    start.Key = hashKeys[keyIndex];
 
-                foreach (FileContainer fc in start.Containers)
-                    UpdateContainerKeysRec(fc, keyIndex + 1);
+                    foreach (FileContainer fc in start.Containers)
+                        UpdateContainerKeysRec(fc, keyIndex + 1);
+                }
+                catch { }
             }
 
             UpdateContainerKeysRec(root as FileContainer, 0);

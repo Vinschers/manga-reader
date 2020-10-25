@@ -15,7 +15,7 @@ namespace Manga_Reader
         { }
         public FileContainer(string path) : base(path)
         { }
-        public FileContainer(FileContainer parent, string path, string key) : base(parent, path, key)
+        public FileContainer(FileContainer parent, string path, Key key) : base(parent, path, key)
         { }
 
         private void ResetContainers()

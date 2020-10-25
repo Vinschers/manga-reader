@@ -38,7 +38,7 @@ namespace Manga_Reader
                 book.Path = txtPath.Text;
                 book.ImagePath = txtImgPath.Text != "" ? txtImgPath.Text : Book.DEFAULT_IMG;
 
-                book.Reader.PathWrapper.SetPathOrganization(txtStructure.Text, book.Reader.Navigator.GetDeepestContainer().Path);
+                book.Reader.PathWrapper.SetPathOrganization(txtStructure.Text, book.Reader.Navigator.GetDeepestContainer());
                 book.Reader.PathWrapper.SetRenameTemplate(txtRename.Text);
                 book.Reader.PathWrapper.SetPageBreaker(txtCounter.Text);
 

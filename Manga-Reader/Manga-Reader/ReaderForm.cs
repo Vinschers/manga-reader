@@ -15,8 +15,7 @@ namespace Manga_Reader
             InitializeComponent();
             this.book = book;
 
-            uiHandler = new UIHandler(this, pnlPage, pbPage, tvPath, menuStrip1, lblPage, lblManga, renameToolStripMenuItem,
-                (container) => { book.Reader.ChangeContainer(container); uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name); uiHandler.UpdateImage(book.Reader.Page.Image); });
+            uiHandler = new UIHandler(this, pnlPage, pbPage, tvPath, menuStrip1, lblPage, lblManga, renameToolStripMenuItem, ChangeTreeViewNode);
 
             SetupShortcuts();
         }
@@ -38,6 +37,12 @@ namespace Manga_Reader
         private void SetupShortcuts()
         {
             deleteCurrentPageToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.D;
+        }
+
+        void ChangeTreeViewNode(Container container)
+        {
+            book.Reader.ChangeContainer(container);
+            RefreshUI();
         }
 
         private void FrmMangaReader_KeyUp(object sender, KeyEventArgs e)
@@ -70,8 +75,8 @@ namespace Manga_Reader
 
         private void RenameKey(object sender, EventArgs e)
         {
-            var key = ((ToolStripMenuItem)sender).Text.Split(' ')[1];
-            book.Reader.RenameKey(key);
+            var key = ((ToolStripMenuItem)sender).Tag;
+            book.Reader.RenameKey(key as Key);
             RefreshUI();
         }
 
@@ -107,7 +112,6 @@ namespace Manga_Reader
             {
                 RetreatPage();
             }
-            
         }
 
         private void AdvancePage()

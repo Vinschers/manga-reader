@@ -7,6 +7,11 @@ using System.Collections;
 
 namespace Manga_Reader
 {
+    public class Key
+    {
+        public string StringValue { get; set; }
+        public int NumericValue { get; set; }
+    }
     public abstract class Container
     {
         protected List<Container> containers;
@@ -15,9 +20,9 @@ namespace Manga_Reader
         protected string name;
         protected string path;
         protected int depth;
-        protected string key;
+        protected Key key;
 
-        public string Key { get => key; set => key = value; }
+        public Key Key { get => key; set => key = value; }
         public string Path { get => path; }
         public string Name { get => name; }
         public int Depth { get => depth; }
@@ -49,7 +54,7 @@ namespace Manga_Reader
             Reset();
             GetDepth();
         }
-        public Container(Container parent, string path, string key) : this(parent, path)
+        public Container(Container parent, string path, Key key) : this(parent, path)
         {
             this.key = key;
         }

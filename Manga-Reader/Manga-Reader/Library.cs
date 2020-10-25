@@ -26,7 +26,7 @@ namespace Manga_Reader
         {
             this.path = path;
             SetupPath();
-            CreateBooksList();
+            RefreshBooksList();
         }
         protected void SetupPath()
         {
@@ -47,19 +47,27 @@ namespace Manga_Reader
                 defaultImg.Save(Path.Combine(path, Book.DEFAULT_IMG), ImageFormat.Jpeg);
             }
         }
-        protected void CreateBooksList()
+        protected void RefreshBooksList()
         {
-            books = new List<Book>();
+            if (books == null)
+                books = new List<Book>();
+
+            foreach (Book book in books)
+                book.Refresh();
 
             string[] files = Directory.GetFiles(path).Where(f => f.EndsWith(Book.FILE_EXT)).ToArray();
 
             foreach (string file in files)
-                books.Add(new Book(file));
+            {
+                Book book = books.Find(b => b.FilePath == file);
+                if (book == null)
+                    books.Add(new Book(file));
+            }
         }
 
         public void Refresh()
         {
-            CreateBooksList();
+            RefreshBooksList();
             books = books.OrderBy(b => b.LastOpened).ToList();
             books.Reverse();
         }

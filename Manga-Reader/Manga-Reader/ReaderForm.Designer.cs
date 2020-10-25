@@ -105,7 +105,6 @@
             this.pbPage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbPage.TabIndex = 2;
             this.pbPage.TabStop = false;
-            this.pbPage.MouseClick += new System.Windows.Forms.MouseEventHandler(this.FrmMangaReader_MouseClick);
             // 
             // pnlPage
             // 
