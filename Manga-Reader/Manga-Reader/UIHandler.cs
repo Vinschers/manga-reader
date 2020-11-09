@@ -14,6 +14,7 @@ namespace Manga_Reader
         protected PictureBox pictureBox;
         protected Label lblPage;
         protected Label lblManga;
+        protected Label lblProgress;
         protected MyTreeView treeView;
         protected MenuStrip menuStrip;
         protected ToolStripMenuItem renameToolStripMenuItem;
@@ -29,7 +30,7 @@ namespace Manga_Reader
 
         public double Zoom { get => zoom; }
 
-        public UIHandler(Form frm, Panel pnl, PictureBox pb, MyTreeView tv, MenuStrip ms, Label page, Label manga,
+        public UIHandler(Form frm, Panel pnl, PictureBox pb, MyTreeView tv, MenuStrip ms, Label page, Label manga, Label progress,
             ToolStripMenuItem rename, Action<Container> chgContainer)
         {
             form = frm;
@@ -39,6 +40,7 @@ namespace Manga_Reader
             menuStrip = ms;
             lblPage = page;
             lblManga = manga;
+            lblProgress = progress;
             renameToolStripMenuItem = rename;
             changeContainerTreeView = chgContainer;
 
@@ -206,13 +208,18 @@ namespace Manga_Reader
 
             zoom /= Math.Pow(ZOOM_RATIO, times);
         }
-        public void UpdateLabels(string pageName, string rootName)
+        public void UpdateLabels(Navigator navigator)
         {
-            lblPage.Text = pageName;
-            lblManga.Text = rootName;
+            Page page = navigator.Page;
+
+            lblPage.Text = page.Name;
+            lblManga.Text = navigator.Root.Name;
+            lblProgress.Text = $"{navigator.Page.Parent.Pages.IndexOf(navigator.Page) + 1}/{navigator.Page.Parent.Pages.Count()}";
 
             lblPage.Left = form.Width / 2 - lblPage.Width / 2;
             lblManga.Left = form.Width / 2 - lblManga.Width / 2;
+            lblProgress.Left = panel.Right - lblProgress.Width;
+            lblProgress.Top = panel.Bottom + 5;
         }
 
         private void PictureBox_MouseWheel(object sender, MouseEventArgs e)

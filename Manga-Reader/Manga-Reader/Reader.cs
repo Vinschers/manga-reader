@@ -59,6 +59,7 @@ namespace Manga_Reader
         {
             navigator.ChangeContainer(container);
 
+            globalPageNumber = navigator.Root.CountPagesUntil(container) + 1;
             pageNumber = navigator.GetPageNumber(PageBreaker);
             pathWrapper.UpdateHash(Page.Parent.Parent);
         }

@@ -15,7 +15,7 @@ namespace Manga_Reader
             InitializeComponent();
             this.book = book;
 
-            uiHandler = new UIHandler(this, pnlPage, pbPage, tvPath, menuStrip1, lblPage, lblManga, renameToolStripMenuItem, ChangeTreeViewNode);
+            uiHandler = new UIHandler(this, pnlPage, pbPage, tvPath, menuStrip1, lblPage, lblManga, lblProgress, renameToolStripMenuItem, ChangeTreeViewNode);
 
             SetupShortcuts();
         }
@@ -142,7 +142,7 @@ namespace Manga_Reader
         private void RefreshUI()
         {
             uiHandler.UpdateImage(book.Reader.Page.Image);
-            uiHandler.UpdateLabels(book.Reader.Page.Name, book.Reader.Name);
+            uiHandler.UpdateLabels(book.Reader.Navigator);
             uiHandler.UpdateSelectedNode(book.Reader.Navigator.CurrentContainer);
         }
     }

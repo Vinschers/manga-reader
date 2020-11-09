@@ -44,6 +44,32 @@ namespace Manga_Reader
             return ret;
         }
 
+        public static Container FindLastCurrentContainer(Container start)
+        {
+            Container ret = null;
+            void FindCurrentContainerRec(Container r)
+            {
+                var containers = new List<Container>(r.Containers);
+                containers.Reverse();
+                for(int i = 0; i < containers.Count(); i++)
+                {
+                    FindCurrentContainerRec(containers[i]);
+                    if (ret != null)
+                        return;
+                }
+
+                if (r.PageWrapper.Pages.Count() > 0)
+                {
+                    ret = r;
+                    return;
+                }
+            }
+
+            FindCurrentContainerRec(start);
+            ret.PageWrapper.SetPage(-1);
+            return ret;
+        }
+
         public void Delete()
         {
             root.Delete();
@@ -117,7 +143,7 @@ namespace Manga_Reader
 
                     for (int i = startIndex; i >= 0; i--)
                     {
-                        currentContainer = FindCurrentContainer(parent.Containers.ElementAt(i));
+                        currentContainer = FindLastCurrentContainer(parent.Containers.ElementAt(i));
                         if (currentContainer != null)
                         {
                             SetPage(parent.Containers.ElementAt(i), - 1);

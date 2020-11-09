@@ -23,9 +23,17 @@ namespace Manga_Reader
         private void FrmLibrary_Load(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Maximized;
-
             library = new Library();
 
+            try
+            {
+                AddBooksToLibrary();
+            }
+            catch (Exception ex)
+            {
+                ThrowException(ex);
+            }
+            
             btnRefresh.PerformClick();
         }
 
@@ -134,6 +142,36 @@ namespace Manga_Reader
                 }
             }
         }
+        private void AddBooksToLibrary()
+        {
+            string[] files = Directory.GetFiles(library.LocalPath).Where(f => f.EndsWith(Book.FILE_EXT)).ToArray();
+            List<string> errFiles = new List<string>();
+
+            foreach (string file in files)
+            {
+                Book book = library.Books.Find(b => b.FilePath == file);
+                if (book == null)
+                {
+                    try
+                    {
+                        library.Add(new Book(file));
+                    }
+                    catch
+                    {
+                        errFiles.Add($"Error opening file {file}");
+                    }
+                }
+            }
+
+            if (errFiles.Count() > 0)
+            {
+                string error = "";
+                foreach (string err in errFiles)
+                    error += err + "\n";
+                throw new Exception(error);
+            }
+        }
+
         private void BtnRefresh_Click(object sender, EventArgs e)
         {
             library.Refresh();
@@ -143,6 +181,11 @@ namespace Manga_Reader
 
             var th = new TitleHolder();
             AdjustPanel(th.Width + 50 + SystemInformation.VerticalScrollBarWidth, 3 * th.Height);
+        }
+
+        private void ThrowException(Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Exception was thrown", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void FrmLibrary_MouseEnter(object sender, EventArgs e)

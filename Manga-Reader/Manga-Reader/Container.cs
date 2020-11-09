@@ -83,14 +83,14 @@ namespace Manga_Reader
             if (Equals(end))
                 return 0;
 
-            int n = 0;
+            int n = pageWrapper.Pages.Count();
             foreach (Container container in containers)
             {
                 if (container.Equals(end))
                     break;
                 n += container.PagesCount(0);
             }
-            n += pageWrapper.Pages.Count();
+
             return n;
         }
 

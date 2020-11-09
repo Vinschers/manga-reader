@@ -42,6 +42,7 @@
             this.renameDepth2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameDepth3ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.renameDepth4ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblProgress = new System.Windows.Forms.Label();
             this.tvPath = new MyTreeView();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbPage)).BeginInit();
@@ -154,6 +155,16 @@
             this.renameDepth4ToolStripMenuItem.Name = "renameDepth4ToolStripMenuItem";
             this.renameDepth4ToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
             // 
+            // lblProgress
+            // 
+            this.lblProgress.AutoSize = true;
+            this.lblProgress.Font = new System.Drawing.Font("UD Digi Kyokasho NK-R", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
+            this.lblProgress.Location = new System.Drawing.Point(483, 288);
+            this.lblProgress.Name = "lblProgress";
+            this.lblProgress.Size = new System.Drawing.Size(126, 24);
+            this.lblProgress.TabIndex = 6;
+            this.lblProgress.Text = "lblProgress";
+            // 
             // tvPath
             // 
             this.tvPath.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(16)))), ((int)(((byte)(16)))));
@@ -171,6 +182,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(16)))), ((int)(((byte)(16)))));
             this.ClientSize = new System.Drawing.Size(1461, 895);
+            this.Controls.Add(this.lblProgress);
             this.Controls.Add(this.lblPage);
             this.Controls.Add(this.lblManga);
             this.Controls.Add(this.pnlPage);
@@ -212,6 +224,7 @@
         private System.Windows.Forms.ToolStripMenuItem renameDepth4ToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteCurrentPageToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem1;
+        private System.Windows.Forms.Label lblProgress;
     }
 }
 
