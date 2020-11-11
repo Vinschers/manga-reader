@@ -146,19 +146,19 @@ namespace Manga_Reader
 
         public override void UpdateContainerKeys()
         {
-            void UpdateContainerKeysRec(FileContainer start, int keyIndex)
+            void UpdateContainerKeysRec(Container start, int keyIndex)
             {
                 try
                 {
                     start.Key = hashKeys[keyIndex];
 
-                    foreach (FileContainer fc in start.Containers)
+                    foreach (Container fc in start.Containers)
                         UpdateContainerKeysRec(fc, keyIndex + 1);
                 }
                 catch { }
             }
 
-            UpdateContainerKeysRec(root as FileContainer, 0);
+            UpdateContainerKeysRec(root as Container, 0);
         }
 
         public override void RenameContainer(Container cont, int start)
@@ -166,7 +166,7 @@ namespace Manga_Reader
             Container innerContainer = Navigator.FindCurrentContainer(cont);
             Hashtable hash = GetHash(innerContainer.Path);
 
-            start += (cont.PageWrapper as FilePageWrapper).RenamePages(template, hash, start, PAGE_KEY);
+            start += cont.PageWrapper.RenamePages(template, hash, start, PAGE_KEY);
 
             foreach(Container c in cont.Containers)
             {

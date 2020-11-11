@@ -77,7 +77,7 @@ namespace Manga_Reader
             if (root == "")
                 return;
 
-            FileContainer rootContainer = new FileContainer(root);
+            Container rootContainer = new Container(root);
             Book book = new Book(new Navigator(rootContainer), new FilePathWrapper(rootContainer), Library.DEFAULT_PATH);
 
             if (!SetupConfigsBook(book))

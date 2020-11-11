@@ -10,6 +10,9 @@ namespace Manga_Reader
 {
     public class Book
     {
+        private string pathWrapperConfigs;
+        private int openPage;
+
         protected string name;
         protected string path;
         protected string imgPath;
@@ -39,28 +42,13 @@ namespace Manga_Reader
         }
         public Book(string file)
         {
-            StreamReader sReader = new StreamReader(file);
+            ReadFile(file);
 
-            string[] parts = sReader.ReadToEnd().Split(FILE_SEPARATOR);
-            sReader.Close();
-
-            name = parts[0];
-            path = parts[1];
-            imgPath = parts[2];
-            lastOpened = DateTime.Parse(parts[3]);
-
-            int page = 0;
-            try
-            {
-                page = int.Parse(parts[4]);
-            }
-            catch { }
-
-            Container root = new FileContainer(path);
+            Container root = new Container(path);
             PathWrapper pw = new FilePathWrapper(root);
             Navigator nav = new Navigator(root);
-            pw.LoadConfigs(parts[5], nav.GetDeepestContainer());
-            this.reader = new Reader(nav, pw, page);
+            pw.LoadConfigs(pathWrapperConfigs, nav.GetDeepestContainer());
+            this.reader = new Reader(nav, pw, openPage);
 
             saveDirectory = file.Substring(0, file.LastIndexOf("\\")) + "\\";
         }
@@ -76,32 +64,32 @@ namespace Manga_Reader
 
         public void Refresh()
         {
-            StreamReader sReader = new StreamReader(FilePath);
+            string oldPath = path;
+            ReadFile(FilePath);
+
+            if (oldPath != path)
+            {
+                Container root = new Container(path);
+                PathWrapper pw = new FilePathWrapper(root);
+                Navigator nav = new Navigator(root);
+                pw.LoadConfigs(pathWrapperConfigs, nav.GetDeepestContainer());
+                this.reader = new Reader(nav, pw, openPage);
+            }
+        }
+
+        protected void ReadFile(string file)
+        {
+            StreamReader sReader = new StreamReader(file);
 
             string[] parts = sReader.ReadToEnd().Split(FILE_SEPARATOR);
             sReader.Close();
 
             name = parts[0];
+            path = parts[1];
             imgPath = parts[2];
             lastOpened = DateTime.Parse(parts[3]);
-
-            if (parts[1] != path)
-            {
-                path = parts[1];
-
-                int page = 0;
-                try
-                {
-                    page = int.Parse(parts[4]);
-                }
-                catch { }
-
-                Container root = new FileContainer(path);
-                PathWrapper pw = new FilePathWrapper(root);
-                Navigator nav = new Navigator(root);
-                pw.LoadConfigs(parts[5], nav.GetDeepestContainer());
-                this.reader = new Reader(nav, pw, page);
-            }
+            openPage = int.Parse(parts[4]);
+            pathWrapperConfigs = parts[5];
         }
         public string ToFile()
         {

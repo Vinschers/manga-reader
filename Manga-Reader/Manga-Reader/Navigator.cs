@@ -26,7 +26,7 @@ namespace Manga_Reader
             Container ret = null;
             void FindCurrentContainerRec(Container r)
             {
-                if (r.PageWrapper.Pages.Count() > 0)
+                if (r.PageWrapper.GetPagesCount() > 0)
                 {
                     ret = r;
                     return;
@@ -299,7 +299,7 @@ namespace Manga_Reader
 
         public int DeletePage()
         {
-            return currentContainer.PageWrapper.DeleteCurrentPage();
+            return currentContainer.PageWrapper.DeletCurrentPage();
         }
 
         public override bool Equals(object obj)

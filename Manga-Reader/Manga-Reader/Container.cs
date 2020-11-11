@@ -12,7 +12,7 @@ namespace Manga_Reader
         public string StringValue { get; set; }
         public int NumericValue { get; set; }
     }
-    public abstract class Container
+    public class Container
     {
         protected List<Container> containers;
         protected PageWrapper pageWrapper;
@@ -26,37 +26,20 @@ namespace Manga_Reader
         public string Path { get => path; }
         public string Name { get => name; }
         public int Depth { get => depth; }
-        public PageWrapper PageWrapper { get => pageWrapper; }
+        public PageWrapper PageWrapper { get => pageWrapper; set => pageWrapper = value; }
         public List<Container> Containers { get => containers; }
         public Container Parent { get => parent; }
 
-        public Container(Container parent)
-        {
-            this.parent = parent;
-            containers = new List<Container>();
-            depth = -1;
-        }
-        public Container(Container parent, string path) : this(parent)
-        {
-            this.path = path;
-            name = path.Substring(path.LastIndexOf("\\") + 1);
-
-            Reset();
-            GetDepth();
-        }
         public Container(string path)
         {
-            containers = new List<Container>();
+            this.containers = new List<Container>();
             this.path = path;
-            name = path.Substring(path.LastIndexOf("\\") + 1);
-            depth = -1;
+            this.name = path.Substring(path.LastIndexOf("\\") + 1);
+            this.depth = -1;
+            this.pageWrapper = new PageWrapper(this);
 
             Reset();
             GetDepth();
-        }
-        public Container(Container parent, string path, Key key) : this(parent, path)
-        {
-            this.key = key;
         }
 
         public void Delete()
@@ -68,7 +51,23 @@ namespace Manga_Reader
             pageWrapper.Delete();
         }
 
-        protected abstract void Reset();
+        protected void Reset()
+        {
+            containers.Clear();
+
+            var dirs = Directory.GetDirectories(path).ToList();
+            if (dirs.Count > 0)
+            {
+                dirs = dirs.OrderBy(x => Regex.Replace(x, "[0-9]+", match => match.Value.PadLeft(10, '0'))).ToList();
+
+                foreach (var dir in dirs)
+                {
+                    Container newContainer = new Container(dir);
+                    newContainer.parent = this;
+                    containers.Add(newContainer);
+                }
+            }
+        }
 
         public int PagesCount(int n)
         {
@@ -86,12 +85,24 @@ namespace Manga_Reader
             int n = pageWrapper.Pages.Count();
             foreach (Container container in containers)
             {
-                if (container.Equals(end))
+                if (container.Includes(end))
                     break;
                 n += container.PagesCount(0);
             }
 
             return n;
+        }
+        public bool Includes(Container cont)
+        {
+            if (Equals(cont))
+                return true;
+            bool found = false;
+            foreach(Container c in containers)
+            {
+                if (c.Includes(cont))
+                    found = true;
+            }
+            return found;
         }
 
         public override bool Equals(object obj)
